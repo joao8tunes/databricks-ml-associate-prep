@@ -124,7 +124,7 @@
     "modulo": "plataforma",
     "modulo_nome": "Plataforma Databricks",
     "dificuldade": "media",
-    "pergunta": "Você quer salvar um modelo para uso offline entre sessões no Databricks Community Edition. Onde você deve salvá-lo?",
+    "pergunta": "Você quer salvar um modelo para uso offline entre sessões no Databricks Free Edition. Onde você deve salvá-lo?",
     "alternativas": [
       "No sistema de arquivos local do driver (/tmp/modelo.pkl).",
       "No DBFS (dbfs:/FileStore/modelos/modelo.pkl).",
@@ -994,15 +994,15 @@
     "modulo": "automl",
     "modulo_nome": "AutoML",
     "dificuldade": "facil",
-    "pergunta": "O Databricks AutoML está disponível na Community Edition?",
+    "pergunta": "O Databricks AutoML está disponível na Free Edition?",
     "alternativas": [
-      "Sim, está disponível sem restrições na Community Edition.",
+      "Sim, está disponível sem restrições na Free Edition.",
       "Sim, mas com limite de 5 trials por experimento.",
       "Não — AutoML requer um workspace pago ou trial.",
       "Sim, mas apenas para classificação binária simples."
     ],
     "resposta_correta": 2,
-    "explicacao": "AutoML não está disponível na Community Edition. É um recurso de workspaces pagos (Standard, Premium) ou de trials. Na Community Edition, é possível estudar a API do código mas não executar."
+    "explicacao": "AutoML não está disponível na Free Edition. É um recurso de workspaces pagos (Standard, Premium) ou de trials. Na Free Edition, é possível estudar a API do código mas não executar."
   },
   {
     "id": 68,
@@ -1204,7 +1204,7 @@
     "modulo": "deployment",
     "modulo_nome": "Deployment e Serving",
     "dificuldade": "media",
-    "pergunta": "O Real-time Model Serving (endpoint REST) está disponível na Databricks Community Edition?",
+    "pergunta": "O Real-time Model Serving (endpoint REST) está disponível na Databricks Free Edition?",
     "alternativas": [
       "Sim, disponível sem restrições.",
       "Sim, mas limitado a 10 requisições por minuto.",
@@ -1212,7 +1212,7 @@
       "Não — requer contrato Enterprise com SLA garantido."
     ],
     "resposta_correta": 2,
-    "explicacao": "Model Serving (endpoints REST) não está disponível na Community Edition. É um recurso de workspaces pagos. Para a prova, é importante conhecer o conceito e o código mesmo sem poder testar na conta gratuita."
+    "explicacao": "Model Serving (endpoints REST) não está disponível na Free Edition. É um recurso de workspaces pagos. Para a prova, é importante conhecer o conceito e o código mesmo sem poder testar na conta gratuita."
   },
   {
     "id": 82,

@@ -310,7 +310,7 @@ AutoML:
 □ primary_metric controla qual modelo é "melhor"
 □ forecast precisa de: time_col, frequency, horizon
 □ Gera 2 notebooks: EDA + melhor modelo (editável)
-□ NÃO disponível na Community Edition
+□ NÃO disponível na Free Edition
 
 Feature Store:
 □ primary_keys → chave de lookup (join)

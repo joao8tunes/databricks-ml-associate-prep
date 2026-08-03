@@ -11,15 +11,15 @@
 ```
 1. Batch Inference   → aplica o modelo em grandes volumes de dados de uma vez
                        Ex: pontuar 1 milhão de clientes toda noite
-                       ✅ Disponível na Community Edition
+                       ✅ Disponível na Free Edition
 
 2. Streaming         → aplica em dados chegando em tempo real (Spark Structured Streaming)
                        Ex: pontuar transações à medida que chegam
-                       ✅ Disponível na Community Edition
+                       ✅ Disponível na Free Edition
 
 3. Real-time Serving → endpoint REST para predições em milissegundos
                        Ex: API chamada pelo app móvel para prever churn em tempo real
-                       ❌ Não disponível na Community Edition
+                       ❌ Não disponível na Free Edition
 ```
 
 ---

@@ -4,22 +4,21 @@
 
 ---
 
-## 0.1 Criar conta gratuita no Databricks (Community Edition)
+## 0.1 Criar conta gratuita no Databricks (Free Edition)
 
-O Databricks oferece uma conta gratuita chamada **Community Edition** — sem cartão de crédito e sem prazo de expiração.
+O Databricks oferece uma conta gratuita chamada **Free Edition** (antiga Community Edition) — sem cartão de crédito e sem prazo de expiração.
 
 **Passo a passo:**
 
-1. Acesse: **https://community.cloud.databricks.com/login.html**
-2. Clique em **"Sign Up"**
+1. Acesse: **https://www.databricks.com/learn/free-edition**
+2. Clique em **"Sign up for free"**
 3. Preencha nome, e-mail e senha
-4. Na tela de escolha de plataforma cloud, clique em **"Get started with Community Edition"** (link pequeno abaixo dos logos AWS/Azure/GCP)
-5. Verifique seu e-mail e clique no link de confirmação
-6. Faça login em **https://community.cloud.databricks.com**
+4. Verifique seu e-mail e clique no link de confirmação
+5. Faça login em **https://login.databricks.com**
 
-### Limitações da Community Edition
+### Limitações da Free Edition
 
-| Recurso | Community Edition | Conta Paga |
+| Recurso | Free Edition | Conta Paga |
 |---|---|---|
 | Cluster | Single Node (1 máquina) | Multi-Node (cluster real) |
 | AutoML | ❌ Não disponível | ✅ Disponível |

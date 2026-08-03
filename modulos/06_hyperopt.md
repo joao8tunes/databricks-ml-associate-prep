@@ -97,7 +97,7 @@ def objetivo(params):
 mlflow.set_experiment("/churn-hyperopt")
 
 with mlflow.start_run(run_name="hyperopt_rf_search"):   # run pai
-    trials = Trials()  # sequencial (Community Edition)
+    trials = Trials()  # sequencial (Free Edition)
 
     best_params = fmin(
         fn=objetivo,
@@ -127,7 +127,7 @@ from hyperopt import SparkTrials
 
 # SparkTrials distribui os trials nos workers do Spark
 # parallelism = quantos trials rodam em simultâneo (≤ número de workers)
-# Na Community Edition funciona mas sem ganho de velocidade (1 worker)
+# Na Free Edition funciona mas sem ganho de velocidade (1 worker)
 
 mlflow.set_experiment("/churn-hyperopt")
 

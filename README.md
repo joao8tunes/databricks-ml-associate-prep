@@ -102,4 +102,4 @@ streamlit run simulados/quiz.py
 | Databricks Academy (gratuito) | https://academy.databricks.com |
 | Documentação MLflow | https://mlflow.org/docs/latest |
 | Documentação Spark ML | https://spark.apache.org/docs/latest/ml-guide.html |
-| Community Edition (conta grátis) | https://community.cloud.databricks.com |
+| Free Edition (conta grátis) | https://www.databricks.com/learn/free-edition |

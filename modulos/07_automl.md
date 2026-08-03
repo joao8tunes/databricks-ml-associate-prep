@@ -4,7 +4,7 @@
 >
 > AutoML treina dezenas de modelos automaticamente e gera notebooks com o código do melhor modelo.
 >
-> ⚠️ **Não disponível na Community Edition.** O código abaixo funciona em workspaces pagos ou trial. Estude mesmo assim — cai na prova.
+> ⚠️ **Não disponível na Free Edition.** O código abaixo funciona em workspaces pagos ou trial. Estude mesmo assim — cai na prova.
 
 ---
 
@@ -224,7 +224,7 @@ summary = automl.classify(
 - `summary.best_trial.model_path` → URI do MLflow para carregar o modelo
 - AutoML gera **2 notebooks**: exploração de dados + melhor modelo (editável)
 - Todos os trials são **automaticamente logados no MLflow**
-- AutoML **não está disponível na Community Edition**
+- AutoML **não está disponível na Free Edition**
 - `exclude_cols` → remover IDs e colunas que não devem ser features
 - O notebook gerado pode ser editado e re-treinado
 
