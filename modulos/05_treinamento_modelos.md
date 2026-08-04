@@ -69,7 +69,7 @@ from pyspark.ml import Pipeline
 from pyspark.sql import functions as F
 import mlflow
 
-df = spark.read.format("delta").load("dbfs:/FileStore/churn_project/data/clientes")
+df = spark.table("workspace.default.churn_clientes")
 
 # --- Pipeline de feature engineering (do Módulo 4) ---
 colunas_num = ["tenure_months", "monthly_charges", "total_charges"]

@@ -36,7 +36,7 @@ from pyspark.sql import functions as F
 ## 4.2 Pipeline completo — do DataFrame bruto às features prontas
 
 ```python
-df = spark.read.format("delta").load("dbfs:/FileStore/churn_project/data/clientes")
+df = spark.table("workspace.default.churn_clientes")
 
 # Injetar alguns nulos para praticar Imputer
 import random
@@ -259,7 +259,7 @@ from pyspark.ml.feature import Imputer, StringIndexer, OneHotEncoder, VectorAsse
 from pyspark.ml.classification import LogisticRegression
 from pyspark.ml.evaluation import BinaryClassificationEvaluator
 
-df = spark.read.format("delta").load("dbfs:/FileStore/churn_project/data/clientes")
+df = spark.table("workspace.default.churn_clientes")
 train_df, test_df = df.randomSplit([0.8, 0.2], seed=42)
 
 # Definir stages

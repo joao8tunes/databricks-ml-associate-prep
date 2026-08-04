@@ -10,7 +10,7 @@
 
 ## 2.1 Criar o dataset do projeto
 
-Este dataset é usado em todos os módulos seguintes. Execute uma vez e reutilize.
+Este dataset é usado em todos os módulos seguintes, salvo como tabela gerenciada no Unity Catalog (`workspace.default.churn_clientes`). Execute uma vez e reutilize.
 
 ```python
 import random
@@ -55,8 +55,8 @@ schema = StructType([
 
 df = spark.createDataFrame(dados, schema)
 
-DELTA_PATH = "dbfs:/FileStore/churn_project/data/clientes"
-df.write.format("delta").mode("overwrite").save(DELTA_PATH)
+TABELA = "workspace.default.churn_clientes"
+df.write.format("delta").mode("overwrite").saveAsTable(TABELA)
 
 display(df)
 print(f"\nTotal: {df.count()} clientes")
@@ -87,7 +87,7 @@ print(f"Taxa de churn: {df.filter(F.col('churn') == 1).count() / df.count():.1%}
 ## 2.3 Exploração de Dados (EDA)
 
 ```python
-df = spark.read.format("delta").load("dbfs:/FileStore/churn_project/data/clientes")
+df = spark.table("workspace.default.churn_clientes")
 
 # 1. Estrutura
 df.printSchema()
@@ -133,7 +133,7 @@ for col_name in ["tenure_months", "monthly_charges", "total_charges"]:
 ```python
 from pyspark.sql import functions as F
 
-df = spark.read.format("delta").load("dbfs:/FileStore/churn_project/data/clientes")
+df = spark.table("workspace.default.churn_clientes")
 
 # --- Criar novas colunas ---
 df = df.withColumn(
@@ -289,7 +289,7 @@ df_filtrado.unpersist()      # libera o cache
 
 ```python
 # Spark usa randomSplit (não train_test_split do sklearn)
-df = spark.read.format("delta").load("dbfs:/FileStore/churn_project/data/clientes")
+df = spark.table("workspace.default.churn_clientes")
 
 train_df, test_df = df.randomSplit([0.8, 0.2], seed=42)
 

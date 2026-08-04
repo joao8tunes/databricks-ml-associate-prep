@@ -93,4 +93,4 @@ Se os 4 itens aparecerem sem erro, o ambiente está pronto.
 
 ## Próximo módulo
 
-→ [01_plataforma.md](01_plataforma.md) — Clusters, DBFS, Delta Lake, dbutils
+→ [01_plataforma.md](01_plataforma.md) — Clusters, Unity Catalog & Volumes, Delta Lake, dbutils

@@ -42,7 +42,7 @@ O dataset é criado programaticamente no Módulo 2 e reutilizado em todos os mó
 | # | Arquivo | Conteúdo | Tempo estimado |
 |---|---|---|---|
 | 0 | [modulos/00_configuracao.md](modulos/00_configuracao.md) | Criar conta gratuita, cluster, primeiro notebook | 30 min |
-| 1 | [modulos/01_plataforma.md](modulos/01_plataforma.md) | Clusters, DBFS, Delta Lake, dbutils | 1h |
+| 1 | [modulos/01_plataforma.md](modulos/01_plataforma.md) | Clusters, Unity Catalog & Volumes, Delta Lake, dbutils | 1h |
 | 2 | [modulos/02_pyspark.md](modulos/02_pyspark.md) | DataFrames, transformações, EDA, lazy evaluation | 2h |
 | 3 | [modulos/03_mlflow.md](modulos/03_mlflow.md) | Tracking, autolog, experiments, Model Registry | 3h |
 | 4 | [modulos/04_feature_engineering.md](modulos/04_feature_engineering.md) | Pipeline Spark ML, encoders, scalers, imputadores | 2h |

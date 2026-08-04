@@ -124,7 +124,7 @@
     "modulo": "plataforma",
     "modulo_nome": "Plataforma Databricks",
     "dificuldade": "media",
-    "pergunta": "Você quer salvar um modelo para uso offline entre sessões no Databricks Free Edition. Onde você deve salvá-lo?",
+    "pergunta": "Você quer salvar um modelo para uso offline entre sessões no Databricks. Onde você deve salvá-lo?",
     "alternativas": [
       "No sistema de arquivos local do driver (/tmp/modelo.pkl).",
       "No DBFS (dbfs:/FileStore/modelos/modelo.pkl).",

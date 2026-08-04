@@ -53,7 +53,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 
 # --- Preparar dados ---
-df = spark.read.format("delta").load("dbfs:/FileStore/churn_project/data/clientes")
+df = spark.table("workspace.default.churn_clientes")
 df_pd = df.select("tenure_months", "monthly_charges", "total_charges", "churn").toPandas()
 X = df_pd.drop("churn", axis=1)
 y = df_pd["churn"]

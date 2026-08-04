@@ -249,7 +249,7 @@ kmeans = KMeans(
     seed=42
 )
 
-df = spark.read.format("delta").load("dbfs:/FileStore/churn_project/data/clientes")
+df = spark.table("workspace.default.churn_clientes")
 # (precisaria ter a coluna "features" — usando a do pipeline do M4)
 
 km_model  = kmeans.fit(train_feat)

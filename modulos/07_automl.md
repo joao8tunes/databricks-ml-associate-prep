@@ -39,7 +39,7 @@ Databricks AutoML:
 ```python
 from databricks import automl
 
-df = spark.read.format("delta").load("dbfs:/FileStore/churn_project/data/clientes")
+df = spark.table("workspace.default.churn_clientes")
 
 # --- Classificação ---
 summary = automl.classify(

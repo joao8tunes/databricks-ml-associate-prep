@@ -40,7 +40,7 @@ model_uri  = f"models:/{MODEL_NAME}/Production"
 pyfunc_model = mlflow.pyfunc.load_model(model_uri)
 
 # Para datasets pequenos: converter para pandas e predizer
-df = spark.read.format("delta").load("dbfs:/FileStore/churn_project/data/clientes")
+df = spark.table("workspace.default.churn_clientes")
 features_cols = ["tenure_months", "monthly_charges", "total_charges"]
 
 df_small_pd = df.select(features_cols).limit(100).toPandas()
@@ -71,7 +71,7 @@ def predict_churn_udf(*feature_series: pd.Series) -> pd.Series:
     return pd.Series(loaded_model.predict_proba(df_features)[:, 1])
 
 # Aplicar no DataFrame Spark inteiro (distribuído!)
-df = spark.read.format("delta").load("dbfs:/FileStore/churn_project/data/clientes")
+df = spark.table("workspace.default.churn_clientes")
 
 df_com_score = df.withColumn(
     "prob_churn",
@@ -98,7 +98,7 @@ display(
 ```python
 # Pipeline completo de batch inference → salvar resultado
 
-OUTPUT_PATH = "dbfs:/FileStore/churn_project/predictions/batch"
+TABELA_PREDICOES = "workspace.default.churn_predictions_batch"
 
 (df_com_score
     .select(
@@ -112,13 +112,13 @@ OUTPUT_PATH = "dbfs:/FileStore/churn_project/predictions/batch"
     .write
     .format("delta")
     .mode("overwrite")
-    .save(OUTPUT_PATH)
+    .saveAsTable(TABELA_PREDICOES)
 )
 
-print(f"Predições salvas em: {OUTPUT_PATH}")
+print(f"Predições salvas em: {TABELA_PREDICOES}")
 
 # Ler e verificar
-df_preds = spark.read.format("delta").load(OUTPUT_PATH)
+df_preds = spark.table(TABELA_PREDICOES)
 display(df_preds.limit(10))
 print(f"Total: {df_preds.count()} clientes pontuados")
 print(f"Churn previsto: {df_preds.filter(F.col('predicao_churn')==1).count()}")
@@ -188,9 +188,8 @@ import mlflow
 # Ler stream de novos clientes chegando em tempo real
 df_stream = (spark
     .readStream
-    .format("delta")
     .option("readChangeFeed", "true")   # lê apenas mudanças novas
-    .load("dbfs:/FileStore/churn_project/data/clientes")
+    .table("workspace.default.churn_clientes")
 )
 
 # Aplicar modelo no stream (mesma lógica do batch)
@@ -208,14 +207,13 @@ df_scored_stream = df_stream.withColumn(
     predict_stream_udf(*[F.col(c) for c in features_cols])
 )
 
-# Escrever resultado do stream
+# Escrever resultado do stream numa tabela gerenciada (checkpoint fica num Volume)
 query = (df_scored_stream
     .select("customer_id", "prob_churn")
     .writeStream
-    .format("delta")
     .outputMode("append")
-    .option("checkpointLocation", "dbfs:/FileStore/churn_project/checkpoints/stream")
-    .start("dbfs:/FileStore/churn_project/predictions/stream")
+    .option("checkpointLocation", "/Volumes/workspace/default/churn_project/checkpoints/stream")
+    .toTable("workspace.default.churn_predictions_stream")
 )
 ```
 

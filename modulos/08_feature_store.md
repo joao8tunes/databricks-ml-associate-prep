@@ -34,7 +34,7 @@ from pyspark.sql import functions as F
 
 fs = FeatureStoreClient()
 
-df = spark.read.format("delta").load("dbfs:/FileStore/churn_project/data/clientes")
+df = spark.table("workspace.default.churn_clientes")
 
 # --- 1. Calcular as features (lógica centralizada) ---
 def calcular_features_cliente(df):
@@ -56,7 +56,7 @@ display(features_df.limit(5))
 
 # --- 2. Criar a tabela de features (primeira vez) ---
 fs.create_table(
-    name="default.features_clientes_churn",   # "database.table_name"
+    name="workspace.default.features_clientes_churn",   # "catalog.schema.table_name"
     primary_keys=["customer_id"],              # chave para fazer lookup
     df=features_df,
     description="Features de clientes para o modelo de churn. Atualizada diariamente."
@@ -65,7 +65,7 @@ print("Feature table criada!")
 
 # --- 3. Atualizar features (dia a dia) ---
 fs.write_table(
-    name="default.features_clientes_churn",
+    name="workspace.default.features_clientes_churn",
     df=features_df,
     mode="merge"     # "merge": atualiza existentes + insere novos
                      # "overwrite": substitui toda a tabela
@@ -79,7 +79,7 @@ print("Features atualizadas!")
 
 ```python
 # Ler a tabela de features como DataFrame Spark
-features_lidas = fs.read_table("default.features_clientes_churn")
+features_lidas = fs.read_table("workspace.default.features_clientes_churn")
 display(features_lidas.limit(5))
 print(f"Total de features: {len(features_lidas.columns) - 1}")  # -1 para não contar a PK
 ```
@@ -98,7 +98,7 @@ df_labels = df.select("customer_id", "churn")
 # FeatureLookup = instrução de "buscar estas features pelo customer_id"
 feature_lookups = [
     FeatureLookup(
-        table_name="default.features_clientes_churn",
+        table_name="workspace.default.features_clientes_churn",
         feature_names=[
             "tenure_months",
             "monthly_charges",
@@ -203,7 +203,7 @@ df_eventos = df_labels.withColumn("timestamp", F.to_timestamp(F.lit("2024-01-01"
 
 feature_lookups_temporais = [
     FeatureLookup(
-        table_name="default.features_historico_clientes",
+        table_name="workspace.default.features_historico_clientes",
         feature_names=["avg_monthly_spend", "is_premium"],
         lookup_key="customer_id",
         timestamp_lookup_key="timestamp"  # ← busca o valor da feature NESTA data
@@ -221,7 +221,7 @@ feature_lookups_temporais = [
 client_fs = FeatureStoreClient()
 
 # Obter metadados de uma tabela
-table_meta = client_fs.get_table("default.features_clientes_churn")
+table_meta = client_fs.get_table("workspace.default.features_clientes_churn")
 print(f"Nome: {table_meta.name}")
 print(f"Descrição: {table_meta.description}")
 print(f"Primary keys: {table_meta.primary_keys}")
