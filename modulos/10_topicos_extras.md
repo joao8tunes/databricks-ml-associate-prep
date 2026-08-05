@@ -197,6 +197,8 @@ with mlflow.start_run(run_name="keras_churn"):
 
 ## 10.4 Treinamento Distribuído — HorovodRunner
 
+> ⚠️ Exige cluster clássico com múltiplas GPUs/máquinas — não roda no Free Edition (Serverless). Teoria para a prova.
+
 ```python
 # HorovodRunner: treinar modelos de deep learning em múltiplas GPUs/máquinas
 from sparkdl import HorovodRunner
@@ -279,8 +281,9 @@ MLflow (25% da prova):
 □ log_param / log_params, log_metric / log_metrics, log_model, log_artifact
 □ autolog() — o que registra automaticamente, para quais frameworks
 □ start_run(nested=True) — para que serve (Hyperopt!)
-□ Stages do Registry: None → Staging → Production → Archived
-□ Carregar por stage: "models:/nome/Production"
+□ Stages do Registry (teoria): None → Staging → Production → Archived
+□ Carregar por stage (teoria): "models:/nome/Production"
+□ Na prática (Unity Catalog): aliases em vez de stages — "models:/catalog.schema.nome@champion"
 □ Carregar por versão: "models:/nome/2"
 □ MlflowClient para operações programáticas
 □ search_runs() retorna DataFrame **pandas** (não Spark!)

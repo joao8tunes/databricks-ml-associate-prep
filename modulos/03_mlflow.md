@@ -19,7 +19,7 @@ Sem MLflow:
 Com MLflow:
   → Tudo registrado e versionado automaticamente.
   → Interface visual para comparar experimentos.
-  → Repositório central para versões de modelos (Staging, Production).
+  → Repositório central para versões de modelos.
 ```
 
 ### Os 4 componentes do MLflow
@@ -28,7 +28,7 @@ Com MLflow:
 |---|---|---|
 | **Tracking** | Registra params, métricas, artefatos de cada run | ★★★★★ |
 | **Models** | Formato padrão para empacotar qualquer modelo | ★★★★☆ |
-| **Registry** | Catálogo de versões (None → Staging → Production) | ★★★★☆ |
+| **Registry** | Catálogo de versões — teoria: `None → Staging → Production`; prática (Unity Catalog): versão + aliases | ★★★★☆ |
 | **Projects** | Empacota código para reprodutibilidade | ★★☆☆☆ |
 
 ---
@@ -199,10 +199,10 @@ print(f"Runs com AUC > 0.80: {len(bons)}")
 
 ---
 
-## 3.6 Model Registry — ciclo de vida do modelo
+## 3.6 Model Registry — ciclo de vida do modelo (teoria para a prova)
 
 ```
-Stages do Registry:
+Stages do Registry legado (Workspace Model Registry):
 None ──→ Staging ──→ Production ──→ Archived
 
 None:       versão recém-registrada, sem stage
@@ -211,11 +211,19 @@ Production: versão ativa em uso
 Archived:   versão inativa (mantida para histórico)
 ```
 
+> ⚠️ **Desde abril de 2024, o Databricks desabilita por padrão o Workspace Model Registry (stages None/Staging/Production) em qualquer workspace com Unity Catalog habilitado** — o que inclui o Free Edition. `client.transition_model_version_stage(...)` e URIs como `models:/nome/Production` **não funcionam** nesses workspaces. Guarde os stages para a prova (ainda caem), mas na prática — aqui e em qualquer workspace moderno — o registro de modelos usa o **Unity Catalog Models**: nome de 3 níveis (`catalog.schema.modelo`) + **aliases** no lugar de stages.
+
+### Na prática: registrando no Unity Catalog
+
 ```python
 from mlflow.tracking import MlflowClient
 
+mlflow.set_registry_uri("databricks-uc")   # garante o registro no Unity Catalog
 client = MlflowClient()
-MODEL_NAME = "churn-predictor"
+
+# Nomes de modelo no Unity Catalog seguem as mesmas regras de tabela:
+# só letras, números e underscore — SEM hífen — e sempre catalog.schema.nome
+MODEL_NAME = "workspace.default.churn_predictor"
 
 # --- Registrar modelo ---
 
@@ -238,34 +246,20 @@ with mlflow.start_run(run_name="RF_para_producao"):
 ```
 
 ```python
-# --- Transicionar stages ---
+# --- Aliases: o equivalente moderno de "promover para Production" ---
 
-# Promover para Staging (para validação)
-client.transition_model_version_stage(
-    name=MODEL_NAME,
-    version=1,
-    stage="Staging",
-    archive_existing_versions=False
-)
+# "champion" é só um nome de alias — pode ser qualquer string (ex: "producao", "campeao")
+client.set_registered_model_alias(name=MODEL_NAME, alias="champion", version=1)
 
-# Promover para Production (após validação)
-client.transition_model_version_stage(
-    name=MODEL_NAME,
-    version=1,
-    stage="Production",
-    archive_existing_versions=True  # arquiva versões antigas de Production
-)
+# Trocar o alias para outra versão = "promover" a nova versão
+client.set_registered_model_alias(name=MODEL_NAME, alias="champion", version=2)
 
-# Arquivar versão obsoleta
-client.transition_model_version_stage(
-    name=MODEL_NAME,
-    version=1,
-    stage="Archived"
-)
+# Remover um alias
+client.delete_registered_model_alias(name=MODEL_NAME, alias="champion")
 ```
 
 ```python
-# --- Metadados e tags ---
+# --- Metadados e tags (funciona igual, com nome de 3 níveis) ---
 client.update_model_version(
     name=MODEL_NAME,
     version=1,
@@ -288,9 +282,8 @@ client.set_registered_model_tag(
 ## 3.7 Carregar modelo do Registry
 
 ```python
-# Por stage (o mais comum)
-model_prod    = mlflow.sklearn.load_model(f"models:/{MODEL_NAME}/Production")
-model_staging = mlflow.sklearn.load_model(f"models:/{MODEL_NAME}/Staging")
+# Por alias (equivalente moderno de "por stage")
+model_prod = mlflow.sklearn.load_model(f"models:/{MODEL_NAME}@champion")
 
 # Por versão específica
 model_v2 = mlflow.sklearn.load_model(f"models:/{MODEL_NAME}/2")
@@ -299,7 +292,7 @@ model_v2 = mlflow.sklearn.load_model(f"models:/{MODEL_NAME}/2")
 model_run = mlflow.sklearn.load_model(f"runs:/{melhor_run_id}/model")
 
 # Formato genérico pyfunc (funciona com qualquer framework)
-model_pyfunc = mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}/Production")
+model_pyfunc = mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}@champion")
 
 # Usar qualquer dos modelos carregados
 novos_clientes = pd.DataFrame({
@@ -310,6 +303,8 @@ novos_clientes = pd.DataFrame({
 print("sklearn:", model_prod.predict(novos_clientes))
 print("pyfunc:", model_pyfunc.predict(novos_clientes))
 ```
+
+> **Resumo teoria vs. prática:** a prova pergunta sobre `Staging`/`Production`/`transition_model_version_stage`. Na sua conta Free Edition (e em qualquer workspace com Unity Catalog), você usa nome de 3 níveis + `set_registered_model_alias` + `models:/nome@alias`.
 
 ---
 
@@ -379,10 +374,12 @@ with mlflow.start_run(run_name="exemplo_artefatos"):
 | `mlflow.log_artifact("arquivo.csv")` | Loga um arquivo qualquer |
 | `mlflow.autolog()` | Ativa logging automático completo |
 | `mlflow.search_runs(...)` | Retorna DataFrame pandas com os runs |
-| `mlflow.register_model(uri, nome)` | Registra modelo no Registry |
-| `mlflow.sklearn.load_model("models:/x/Production")` | Carrega por stage |
+| `mlflow.register_model(uri, nome)` | Registra modelo no Registry (nome de 3 níveis no Unity Catalog) |
+| `mlflow.sklearn.load_model("models:/x/Production")` | Carrega por stage — **teoria**; Registry legado desabilitado por padrão em workspaces UC |
 | `mlflow.pyfunc.load_model(uri)` | Carrega qualquer modelo (formato genérico) |
-| `client.transition_model_version_stage(...)` | Muda o stage de uma versão |
+| `client.transition_model_version_stage(...)` | Muda o stage de uma versão — **teoria**; use `set_registered_model_alias` na prática |
+| `client.set_registered_model_alias(nome, alias, versao)` | Aponta um alias (ex: `champion`) para uma versão — equivalente moderno de "promover" |
+| `models:/catalog.schema.modelo@alias` | URI para carregar por alias no Unity Catalog |
 | `nested=True` em `start_run()` | Cria run filho dentro de um run pai (Hyperopt!) |
 
 ---

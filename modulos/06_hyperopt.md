@@ -36,7 +36,7 @@ tpe.suggest  → Tree of Parzen Estimators (Bayesiano) — PADRÃO, mais eficien
 rand.suggest → busca aleatória (baseline)
 
 Trials()        → execução sequencial (funciona em qualquer ambiente)
-SparkTrials()   → execução paralela nos workers Spark (conta paga)
+SparkTrials()   → execução paralela nos workers Spark
 ```
 
 ---
@@ -97,7 +97,7 @@ def objetivo(params):
 mlflow.set_experiment("/churn-hyperopt")
 
 with mlflow.start_run(run_name="hyperopt_rf_search"):   # run pai
-    trials = Trials()  # sequencial (Free Edition)
+    trials = Trials()  # sequencial (funciona em qualquer ambiente)
 
     best_params = fmin(
         fn=objetivo,
@@ -127,7 +127,8 @@ from hyperopt import SparkTrials
 
 # SparkTrials distribui os trials nos workers do Spark
 # parallelism = quantos trials rodam em simultâneo (≤ número de workers)
-# Na Free Edition funciona mas sem ganho de velocidade (1 worker)
+# No Free Edition (Serverless) não há workers fixos para configurar — o Databricks
+# escala automaticamente dentro da sua cota de uso, então o ganho de paralelismo varia
 
 mlflow.set_experiment("/churn-hyperopt")
 
@@ -225,7 +226,7 @@ with mlflow.start_run(run_name="RF_final_hyperopt"):
     mlflow.sklearn.log_model(
         model_final,
         artifact_path="model",
-        registered_model_name="churn-predictor-hyperopt"
+        registered_model_name="workspace.default.churn_predictor_hyperopt"  # nome UC: catalog.schema.modelo, sem hífen
     )
 
     print(f"AUC-ROC final: {roc_auc_score(y_test, proba):.4f}")

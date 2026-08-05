@@ -22,6 +22,8 @@ Arquitetura:
  Worker 1   Worker 2   Worker 3   ← processam dados em paralelo
 ```
 
+> **Analogia:** se **Cluster** é o hardware (as máquinas — quantas, de que tamanho), **Databricks Runtime** é o sistema operacional + programas pré-instalados nelas (Spark, e no caso do Runtime ML, também MLflow, sklearn, XGBoost...). Você escolhe o hardware (cluster) e o software que vem instalado nele (runtime) separadamente.
+
 ### Tipos de cluster — o que cai na prova
 
 | Tipo | Uso | Custo | Quando usar |
@@ -31,6 +33,8 @@ Arquitetura:
 
 > **Na prova:** Job Cluster é sempre a resposta certa para produção — é destruído ao fim do job, pagando só pelo tempo de execução.
 
+> ⚠️ **No Free Edition você não cria nem configura clusters** — só existe compute **Serverless**, que abstrai tudo isso (o Databricks decide o hardware por trás dos panos). A tabela acima é teoria de prova; para praticar, seus notebooks já conectam em Serverless automaticamente (veja o Módulo 0).
+
 ### Databricks Runtime
 
 ```
@@ -38,6 +42,8 @@ Runtime 14.x          → Python + Spark padrão
 Runtime 14.x ML       → + MLflow, sklearn, XGBoost, PyTorch, TensorFlow
 Runtime 14.x ML GPU   → + suporte a GPU (deep learning com GPU)
 ```
+
+No Serverless não existe seletor de versão de Runtime — o Databricks mantém o ambiente (equivalente ao Runtime ML) atualizado automaticamente.
 
 ---
 
@@ -52,7 +58,7 @@ dbutils.fs.cp / mv / rm             → copiar, mover, remover
 dbfs:/FileStore/                    → área tradicional de upload de arquivos
 ```
 
-> ⚠️ **No Databricks Free Edition, o "public DBFS root" vem desabilitado por padrão** — qualquer leitura/escrita em `dbfs:/...` retorna o erro `DBFS_DISABLED: Public DBFS root is disabled`. Isso não é um bug: é a direção atual do Databricks (inclusive em contas pagas) de migrar armazenamento de arquivos para o **Unity Catalog**. Guarde o conceito de DBFS para a prova — ainda é cobrado — mas os exercícios práticos deste guia usam Unity Catalog a partir daqui.
+> ⚠️ **No Databricks Free Edition, o "public DBFS root" vem desabilitado por padrão.** Rodar `dbutils.fs.ls("dbfs:/")` ainda funciona, mas só mostra 3 pastas especiais montadas (`Volumes/`, `Workspace/`, `databricks-datasets/`) — não é um espaço livre para gravar. Qualquer tentativa de **escrever** fora desses mounts (ex: `dbutils.fs.mkdirs("dbfs:/caminho")` ou qualquer coisa em `dbfs:/FileStore/`) retorna o erro `DBFS_DISABLED: Public DBFS root is disabled`. Isso não é um bug: é a direção atual do Databricks (inclusive em contas pagas) de migrar armazenamento de arquivos para o **Unity Catalog**. Guarde o conceito de DBFS para a prova — ainda é cobrado — mas os exercícios práticos deste guia usam Unity Catalog a partir daqui.
 
 ---
 
@@ -60,7 +66,18 @@ dbfs:/FileStore/                    → área tradicional de upload de arquivos
 
 O Unity Catalog organiza dados em três níveis: **catalog → schema → tabela/volume** (equivalente a database → schema → tabela no mundo relacional). Toda conta Free Edition já vem com o catalog `workspace` e o schema `default` prontos para uso, então não é preciso criar nada extra para começar.
 
-| Recurso | Para quê | Substitui |
+### DBFS vs. Unity Catalog — o que é cada coisa
+
+| | DBFS (legado) | Unity Catalog |
+|---|---|---|
+| **O que é** | Um sistema de arquivos único por workspace | Um catálogo de dados com governança: `catalog.schema.tabela` e `/Volumes/catalog/schema/volume/` |
+| **Como você referencia algo** | Path (`dbfs:/pasta/arquivo.csv`) | Nome lógico (`workspace.default.tabela`) ou path de Volume |
+| **Permissões** | Por workspace inteiro, pouco granular | Granular — por catalog, schema, tabela ou volume |
+| **Funciona entre workspaces?** | Não | Sim (um metastore pode ser compartilhado) |
+| **Neste guia** | Só teoria (cai na prova) | O que você usa na prática |
+| **Regra prática** | Se você pensou em `dbfs:/algo`, é aqui que o Free Edition bloqueia | Tabela gerenciada para Delta, Volume para arquivo cru |
+
+| Recurso Unity Catalog | Para quê | Substitui |
 |---|---|---|
 | **Tabela gerenciada** | Salvar DataFrames como Delta — forma recomendada, sem lidar com paths | `spark.write.save(path)` em `dbfs:/` |
 | **Volume** | Arquivos crus: CSV, imagens, checkpoints de streaming | `dbfs:/FileStore/` |
@@ -246,9 +263,11 @@ print(f"Versão 0: {df_v0.count()} produtos | Versão 1: {df_v1.count()} produto
 
 ## Pontos-chave para a prova
 
+- Cluster = hardware (máquinas); Runtime = software instalado nelas (Spark + libs)
 - Job Cluster = criado e destruído automaticamente → mais barato para produção
 - Runtime ML = inclui MLflow, sklearn, PyTorch, TensorFlow pré-instalados
-- DBFS = sistema de arquivos distribuído, persiste entre sessões (cai na prova; desabilitado por padrão no Free Edition)
+- Serverless = Databricks gerencia o hardware por você — sem criar/configurar cluster (padrão no Free Edition)
+- DBFS = sistema de arquivos distribuído, persiste entre sessões (cai na prova; root público desabilitado no Free Edition)
 - Unity Catalog = catalog → schema → tabela/volume; substitui o DBFS na prática (tabelas gerenciadas + Volumes)
 - Delta Lake = ACID + time travel + schema enforcement
 - `option("versionAsOf", N)` = lê versão N do histórico Delta

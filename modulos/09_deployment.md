@@ -19,7 +19,7 @@
 
 3. Real-time Serving → endpoint REST para predições em milissegundos
                        Ex: API chamada pelo app móvel para prever churn em tempo real
-                       ❌ Não disponível na Free Edition
+                       ✅ Disponível na Free Edition, com limites (poucos endpoints ativos, sem GPU)
 ```
 
 ---
@@ -33,8 +33,9 @@ import pandas as pd
 from pyspark.sql import functions as F
 
 # Carregar modelo do Registry (formato genérico pyfunc)
-MODEL_NAME = "churn-predictor"
-model_uri  = f"models:/{MODEL_NAME}/Production"
+# Nome UC: catalog.schema.modelo (sem hífen) — "champion" é o alias definido no Módulo 3
+MODEL_NAME = "workspace.default.churn_predictor"
+model_uri  = f"models:/{MODEL_NAME}@champion"
 
 # pyfunc = formato universal — funciona com sklearn, XGBoost, Keras, PyTorch...
 pyfunc_model = mlflow.pyfunc.load_model(model_uri)
@@ -58,7 +59,7 @@ from pyspark.sql.types import DoubleType
 import pandas as pd
 
 # Carregar modelo no driver (uma vez)
-loaded_model = mlflow.sklearn.load_model(f"models:/{MODEL_NAME}/Production")
+loaded_model = mlflow.sklearn.load_model(f"models:/{MODEL_NAME}@champion")
 features_cols = ["tenure_months", "monthly_charges", "total_charges"]
 
 # Pandas UDF: aplica o modelo em chunks pandas distribuídos nos workers
@@ -107,7 +108,7 @@ TABELA_PREDICOES = "workspace.default.churn_predictions_batch"
         "predicao_churn",
         F.current_timestamp().alias("scored_at"),
         F.lit(MODEL_NAME).alias("modelo_usado"),
-        F.lit("Production").alias("stage_modelo")
+        F.lit("champion").alias("alias_modelo")
     )
     .write
     .format("delta")
@@ -126,7 +127,9 @@ print(f"Churn previsto: {df_preds.filter(F.col('predicao_churn')==1).count()}")
 
 ---
 
-## 9.5 Real-time Model Serving (conta paga — conceito para a prova)
+## 9.5 Real-time Model Serving
+
+> ✅ **Disponível no Free Edition** (diferente da antiga Community Edition) — com limites: número de endpoints ativos limitado, sem GPU serving, sem provisioned throughput, sem modelos customizados em GPU/batch inference. Dá pra criar e testar o endpoint abaixo direto na sua conta gratuita.
 
 ```
 Na UI do Databricks:
@@ -134,9 +137,9 @@ Machine Learning → Serving → Create serving endpoint
 
 Configurações:
 ├── Name: churn-predictor-endpoint
-├── Served models:
-│   ├── Model: churn-predictor (do Registry)
-│   ├── Model version: 1 (ou "Production")
+├── Served entities:
+│   ├── Model: workspace.default.churn_predictor (do Unity Catalog)
+│   ├── Model version: 1 (ou selecione pelo alias "champion")
 │   └── Compute size: Small / Medium / Large
 └── Enable scale to zero: sim (economiza quando não há tráfego)
 ```
@@ -146,8 +149,10 @@ Configurações:
 import requests
 import json
 
-WORKSPACE_URL = "https://seu-workspace.azuredatabricks.net"
+WORKSPACE_URL = "https://<seu-workspace>.cloud.databricks.com"  # copie da barra de endereço do seu navegador
+
 # Token: buscar via dbutils.secrets ou variável de ambiente (nunca hardcoded!)
+# Para testar rapidamente: Settings → Developer → Access tokens → Generate new token
 TOKEN = dbutils.secrets.get(scope="meu-scope", key="api-token")
 
 endpoint_url = f"{WORKSPACE_URL}/serving-endpoints/churn-predictor-endpoint/invocations"
@@ -193,7 +198,7 @@ df_stream = (spark
 )
 
 # Aplicar modelo no stream (mesma lógica do batch)
-loaded_model = mlflow.sklearn.load_model(f"models:/{MODEL_NAME}/Production")
+loaded_model = mlflow.sklearn.load_model(f"models:/{MODEL_NAME}@champion")
 features_cols = ["tenure_months", "monthly_charges", "total_charges"]
 
 @pandas_udf(DoubleType())
@@ -265,11 +270,11 @@ with tempfile.TemporaryDirectory() as tmp:
             artifact_path="model",
             python_model=ChurnModelWrapper(),
             artifacts={"model_path": pkl_path},
-            registered_model_name="churn-wrapper"
+            registered_model_name="workspace.default.churn_wrapper"  # nome UC: sem hífen
         )
 
-# Usar o wrapper
-wrapper = mlflow.pyfunc.load_model("models:/churn-wrapper/1")
+# Usar o wrapper (por versão — não precisa de alias aqui)
+wrapper = mlflow.pyfunc.load_model("models:/workspace.default.churn_wrapper/1")
 
 resultado = wrapper.predict(pd.DataFrame({
     "tenure_months":   [2, 60, 15],
@@ -287,7 +292,7 @@ display(spark.createDataFrame(resultado))
 |---|---|
 | **Batch Inference** | `mlflow.pyfunc.load_model()` → prediz em pandas; `pandas_udf` para escala Spark |
 | **Streaming** | Spark Structured Streaming + `pandas_udf` |
-| **Real-time Serving** | Endpoint REST — disponível só em workspace pago |
+| **Real-time Serving** | Endpoint REST — disponível no Free Edition, com limites (endpoints, GPU, throughput) |
 | `mlflow.pyfunc.load_model()` | Formato universal — funciona com qualquer framework |
 | `pandas_udf` | UDF vetorizada: opera em chunks pandas, muito mais eficiente |
 | Formato do endpoint | `{"dataframe_records": [...]}` ou `{"dataframe_split": {...}}` |

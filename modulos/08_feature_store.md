@@ -156,7 +156,7 @@ with mlflow.start_run(run_name="churn_feature_store"):
         artifact_path="model",
         flavor=mlflow.sklearn,
         training_set=training_set,               # ← vínculo com o Feature Store
-        registered_model_name="churn-fs-model"   # registra no Registry automaticamente
+        registered_model_name="workspace.default.churn_fs_model"   # nome UC: catalog.schema.modelo, sem hífen
     )
 
 print(f"AUC-ROC: {auc:.4f}")
@@ -175,9 +175,15 @@ novos_clientes = spark.createDataFrame(
     ["customer_id"]
 )
 
+# Apontar o alias "champion" para a versão registrada (equivalente a "promover" — ver Módulo 3)
+from mlflow.tracking import MlflowClient
+MlflowClient().set_registered_model_alias(
+    name="workspace.default.churn_fs_model", alias="champion", version=1
+)
+
 # score_batch: busca as features, aplica o modelo e retorna predições
 predictions = fs.score_batch(
-    model_uri="models:/churn-fs-model/Production",
+    model_uri="models:/workspace.default.churn_fs_model@champion",
     df=novos_clientes,
     result_type="double"    # tipo do retorno: "double", "int", "string", etc.
 )

@@ -4,7 +4,7 @@
 >
 > AutoML treina dezenas de modelos automaticamente e gera notebooks com o código do melhor modelo.
 >
-> ⚠️ **Não disponível na Free Edition.** O código abaixo funciona em workspaces pagos ou trial. Estude mesmo assim — cai na prova.
+> ⚠️ **Não disponível na Free Edition** — AutoML (classificação/regressão) exige cluster clássico, e o Free Edition só oferece compute Serverless. O código abaixo funciona em workspaces pagos ou trial (com cluster clássico). Estude mesmo assim — cai na prova.
 
 ---
 
@@ -133,17 +133,17 @@ runs = mlflow.search_runs(
 )
 display(runs[["tags.mlflow.runName", "metrics.val_roc_auc_score"]].head(10))
 
-# Registrar o melhor modelo no Registry
+# Registrar o melhor modelo no Registry (nome UC: catalog.schema.modelo, sem hífen)
 from mlflow.tracking import MlflowClient
+mlflow.set_registry_uri("databricks-uc")
 client = MlflowClient()
 
+MODEL_NAME = "workspace.default.churn_automl_best"
 model_uri = summary.best_trial.model_path
-result = mlflow.register_model(model_uri, "churn-automl-best")
-client.transition_model_version_stage(
-    name="churn-automl-best",
-    version=result.version,
-    stage="Production"
-)
+result = mlflow.register_model(model_uri, MODEL_NAME)
+
+# "Promover" = apontar um alias para a versão (ver Módulo 3)
+client.set_registered_model_alias(name=MODEL_NAME, alias="champion", version=result.version)
 ```
 
 ---
@@ -162,7 +162,7 @@ from sklearn.preprocessing import LabelEncoder
 from lightgbm import LGBMClassifier
 
 # 1. Carregar e preparar os dados
-df_loaded = spark.table("churn_project.clientes").toPandas()
+df_loaded = spark.table("workspace.default.churn_clientes").toPandas()
 
 # 2. Preprocessamento (gerado automaticamente com as melhores transformações)
 # StringIndexer para categorias, StandardScaler para numéricas, etc.

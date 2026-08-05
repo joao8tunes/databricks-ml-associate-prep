@@ -20,33 +20,27 @@ O Databricks oferece uma conta gratuita chamada **Free Edition** (antiga Communi
 
 | Recurso | Free Edition | Conta Paga |
 |---|---|---|
-| Cluster | Single Node (1 máquina) | Multi-Node (cluster real) |
-| AutoML | ❌ Não disponível | ✅ Disponível |
-| Model Serving (REST) | ❌ Não disponível | ✅ Disponível |
-| Feature Store | ✅ Limitado | ✅ Completo |
+| Compute | Somente **Serverless** — sem criar/configurar cluster | Clusters clássicos (All-Purpose, Job) configuráveis |
+| AutoML (classificação/regressão) | ❌ Não disponível (exige cluster clássico) | ✅ Disponível |
+| Model Serving (REST) | ✅ Disponível, com limites (nº de endpoints, sem GPU, sem provisioned throughput) | ✅ Completo |
+| Feature Store | ✅ Disponível | ✅ Completo |
 | MLflow | ✅ Completo | ✅ Completo |
-| Spark ML | ✅ Completo | ✅ Completo |
+| Spark ML | ✅ Completo (via Serverless) | ✅ Completo |
 
-> Os tópicos de AutoML e Model Serving são cobrados na prova — estude o código mesmo sem conseguir rodar localmente.
+> O tópico de AutoML é cobrado na prova mesmo sem conseguir rodar no Free Edition — estude o código.
 
 ---
 
-## 0.2 Criar o primeiro cluster
+## 0.2 Compute: por que não existe "Create Cluster" aqui
 
-1. No menu esquerdo, clique em **"Compute"**
-2. Clique em **"Create Cluster"**
-3. Configure:
-   - **Cluster name:** `ml-study-cluster`
-   - **Cluster mode:** Single Node
-   - **Databricks Runtime:** versão mais recente com **"ML"** no nome — ex: `14.x ML`
-4. Clique em **"Create Cluster"**
-5. Aguarde o símbolo verde (cluster pronto — pode levar 3–5 min)
+Diferente de contas pagas, o Free Edition **não permite criar nem configurar clusters**. Todo o compute é **Serverless**: o Databricks aloca e gerencia as máquinas automaticamente por trás dos panos, sem tela de "Create Cluster", sem escolher tamanho de máquina, sem esperar o cluster subir.
 
-> **Runtime ML vs Runtime padrão:**
-> - Runtime padrão: Spark + Python
-> - Runtime ML: tudo do padrão + MLflow, sklearn, XGBoost, LightGBM, PyTorch, TensorFlow
->
-> **Sempre use Runtime ML** para os exercícios deste guia.
+Isso significa:
+- Notebooks conectam a **Serverless** automaticamente — não existe passo de criar cluster.
+- O SQL Editor/Dashboards usam o **"Serverless Starter Warehouse"**, o único SQL Warehouse disponível na conta gratuita.
+- Você não escolhe versão de Databricks Runtime — o ambiente serverless já vem com Python, Spark, MLflow, sklearn, XGBoost etc. pré-instalados e atualizados pelo Databricks.
+
+> **Para a prova:** o conceito de cluster (All-Purpose vs Job Cluster, Databricks Runtime, Runtime ML) continua sendo cobrado — veja o Módulo 1. Aqui você só não vai *praticar* a criação manual, porque o Free Edition abstrai isso.
 
 ---
 
@@ -57,8 +51,8 @@ O Databricks oferece uma conta gratuita chamada **Free Edition** (antiga Communi
 3. Configure:
    - **Name:** `00_verificacao_ambiente`
    - **Language:** Python
-   - **Cluster:** selecione o cluster criado acima
 4. Clique em **"Create"**
+5. No canto superior esquerdo do notebook, confirme que o seletor de compute mostra **"Serverless"** (conecta sozinho ao rodar a primeira célula — não precisa fazer nada)
 
 **Cole e execute este código de verificação:**
 
