@@ -82,12 +82,18 @@ O Unity Catalog organiza dados em três níveis: **catalog → schema → tabela
 | **Tabela gerenciada** | Salvar DataFrames como Delta — forma recomendada, sem lidar com paths | `spark.write.save(path)` em `dbfs:/` |
 | **Volume** | Arquivos crus: CSV, imagens, checkpoints de streaming | `dbfs:/FileStore/` |
 
+O exemplo abaixo é autocontido — cria um DataFrame pequeno só para você testar o padrão agora. **O dado real do projeto (tabela `churn_clientes`) só é criado no Módulo 2** — aqui é só para praticar a sintaxe.
+
 ```python
+# Criar um DataFrame de exemplo (não é o dado do projeto — é só para testar)
+df_exemplo = spark.createDataFrame([("C001", 0), ("C002", 1)], ["customer_id", "churn"])
+
 # Tabela gerenciada — não precisa de path, só catalog.schema.tabela
-df.write.format("delta").mode("overwrite").saveAsTable("workspace.default.clientes_churn")
+df_exemplo.write.format("delta").mode("overwrite").saveAsTable("workspace.default.exemplo_uc")
 
 # Ler de volta
-df_delta = spark.table("workspace.default.clientes_churn")
+display(spark.table("workspace.default.exemplo_uc"))
+# → deve mostrar as 2 linhas que você acabou de escrever
 ```
 
 Para arquivos crus (o que antes ia em `dbfs:/FileStore/`), crie um volume uma única vez e use `dbutils.fs` normalmente — a API não muda, só o caminho:
@@ -97,20 +103,34 @@ Para arquivos crus (o que antes ia em `dbfs:/FileStore/`), crie um volume uma ú
 CREATE VOLUME IF NOT EXISTS workspace.default.churn_project;
 ```
 
+O volume começa **vazio**. Os comandos abaixo criam um arquivo de teste primeiro e depois manipulam esse mesmo arquivo, para você ver o efeito de cada operação:
+
 ```python
-# Listar arquivos
-display(dbutils.fs.ls("/Volumes/workspace/default/churn_project/"))
+CAMINHO = "/Volumes/workspace/default/churn_project"
 
-# Criar pasta
-dbutils.fs.mkdirs("/Volumes/workspace/default/churn_project/data/")
+# 0. Criar um arquivo de teste (senão não existe nada para listar/copiar/mover)
+dbutils.fs.put(f"{CAMINHO}/origem.csv", "customer_id,churn\nC001,0\nC002,1\n", overwrite=True)
 
-# Copiar e mover arquivos
-dbutils.fs.cp("/Volumes/workspace/default/churn_project/origem.csv", "/Volumes/workspace/default/churn_project/destino.csv")
-dbutils.fs.mv("/Volumes/workspace/default/churn_project/arquivo.csv", "/Volumes/workspace/default/churn_project/nova_pasta/arquivo.csv")
+# 1. Listar arquivos → deve aparecer "origem.csv"
+display(dbutils.fs.ls(CAMINHO))
 
-# Deletar
-dbutils.fs.rm("/Volumes/workspace/default/churn_project/arquivo_temporario.csv")
-dbutils.fs.rm("/Volumes/workspace/default/churn_project/pasta_inteira/", recurse=True)
+# 2. Criar pasta → cria "data/", ainda vazia
+dbutils.fs.mkdirs(f"{CAMINHO}/data/")
+
+# 3. Copiar → agora existem "origem.csv" E "destino.csv" (os dois, lado a lado)
+dbutils.fs.cp(f"{CAMINHO}/origem.csv", f"{CAMINHO}/destino.csv")
+
+# 4. Mover → "destino.csv" desaparece da raiz e passa a existir em "data/arquivo.csv"
+dbutils.fs.mv(f"{CAMINHO}/destino.csv", f"{CAMINHO}/data/arquivo.csv")
+
+# 5. Deletar um arquivo → remove só "origem.csv"
+dbutils.fs.rm(f"{CAMINHO}/origem.csv")
+
+# 6. Deletar uma pasta inteira (recursivo) → remove "data/" e o "arquivo.csv" dentro dela
+dbutils.fs.rm(f"{CAMINHO}/data/", recurse=True)
+
+# Conferir que o volume voltou a ficar vazio
+display(dbutils.fs.ls(CAMINHO))
 ```
 
 ---
@@ -118,6 +138,8 @@ dbutils.fs.rm("/Volumes/workspace/default/churn_project/pasta_inteira/", recurse
 ## 1.3 Delta Lake
 
 Delta Lake é o formato padrão de armazenamento no Databricks. Pense nele como um Parquet com superpoderes.
+
+> O exemplo abaixo cria um dataset pequeno e fictício **só para praticar Delta Lake** — não é o dataset do projeto. O dataset real (`churn_clientes`, ~1000 clientes) é criado no Módulo 2 e é o que os módulos seguintes usam.
 
 ```
 Delta Lake resolve problemas do CSV/Parquet puro:
@@ -149,7 +171,7 @@ dados = [
 df = spark.createDataFrame(dados, schema)
 
 # Salvar como tabela Delta gerenciada (Unity Catalog)
-TABELA = "workspace.default.clientes_churn"
+TABELA = "workspace.default.demo_delta"  # nome de demonstração — não confundir com "churn_clientes" do Módulo 2
 df.write.format("delta").mode("overwrite").saveAsTable(TABELA)
 
 # Ler Delta
@@ -181,9 +203,9 @@ display(spark.sql(f"SELECT * FROM {TABELA} WHERE churn = 1"))
 
 # Ou misturar Python e SQL no mesmo notebook
 # %sql
-# SELECT contract_type, COUNT(*) as total, AVG(churn) as taxa_churn
-# FROM workspace.default.clientes_churn
-# GROUP BY contract_type
+# SELECT tenure_months, COUNT(*) as total, AVG(churn) as taxa_churn
+# FROM workspace.default.demo_delta
+# GROUP BY tenure_months
 ```
 
 ---

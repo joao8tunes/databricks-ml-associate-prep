@@ -36,6 +36,7 @@ from pyspark.sql import functions as F
 ## 4.2 Pipeline completo — do DataFrame bruto às features prontas
 
 ```python
+# Tabela criada no Módulo 2 — rode aquele notebook primeiro se ainda não rodou
 df = spark.table("workspace.default.churn_clientes")
 
 # Injetar alguns nulos para praticar Imputer

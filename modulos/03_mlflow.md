@@ -44,6 +44,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 
 # Preparar dados (converter Spark para pandas para usar sklearn)
+# Tabela criada no Módulo 2 — rode aquele notebook primeiro se ainda não rodou
 df = spark.table("workspace.default.churn_clientes")
 
 df_pd = df.select("tenure_months", "monthly_charges", "total_charges", "churn").toPandas()

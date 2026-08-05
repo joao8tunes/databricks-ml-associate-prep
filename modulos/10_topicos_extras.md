@@ -39,6 +39,9 @@ Resultado: modelo parece ótimo no treino/validação, péssimo em produção.
 ```
 
 ```python
+# Exemplo conceitual — X e y representam qualquer dataset pandas já carregado
+# (ex.: X, y da seção 10.3 abaixo). O foco aqui é a ORDEM das operações, não o dado em si.
+
 # ERRADO: data leakage na normalização
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
@@ -69,6 +72,8 @@ pipeline.score(X_test, y_test)   # scaler.transform() usa parâmetros do treino
 ---
 
 ## 10.2 Métricas — referência completa
+
+> Isto é uma referência de consulta, não um bloco para rodar — `y_true`/`y_pred` representam as previsões de qualquer modelo já treinado (ex.: `y_test`/`preds` da seção 10.3).
 
 ### Classificação Binária
 
@@ -116,6 +121,18 @@ Regressão comparativa:   R² (normalizado, mais interpretável)
 ---
 
 ## 10.3 Deep Learning no Databricks
+
+Os dois exemplos abaixo (PyTorch e Keras) usam `X_train`/`y_train` em pandas. Rode isto uma vez antes de qualquer um dos dois (tabela criada no Módulo 2):
+
+```python
+from sklearn.model_selection import train_test_split
+
+df = spark.table("workspace.default.churn_clientes")
+df_pd = df.select("tenure_months", "monthly_charges", "total_charges", "churn").toPandas()
+X = df_pd.drop("churn", axis=1)
+y = df_pd["churn"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+```
 
 ### PyTorch com MLflow autolog
 
@@ -240,8 +257,21 @@ runner.run(train_hvd)
 ## 10.5 KMeans Clustering com Spark ML
 
 ```python
+from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.clustering import KMeans, BisectingKMeans
 from pyspark.ml.evaluation import ClusteringEvaluator
+
+# Tabela criada no Módulo 2 — rode aquele notebook primeiro se ainda não rodou
+df = spark.table("workspace.default.churn_clientes")
+
+# KMeans precisa de uma coluna "features" (vetor) — montamos uma rápida aqui
+# com as 3 colunas numéricas (ver Módulo 4 para um pipeline completo de feature engineering)
+assembler  = VectorAssembler(
+    inputCols=["tenure_months", "monthly_charges", "total_charges"],
+    outputCol="features"
+)
+df_feat    = assembler.transform(df)
+train_feat, test_feat = df_feat.randomSplit([0.8, 0.2], seed=42)
 
 # KMeans
 kmeans = KMeans(
@@ -250,9 +280,6 @@ kmeans = KMeans(
     maxIter=20,
     seed=42
 )
-
-df = spark.table("workspace.default.churn_clientes")
-# (precisaria ter a coluna "features" — usando a do pipeline do M4)
 
 km_model  = kmeans.fit(train_feat)
 clustered = km_model.transform(test_feat)

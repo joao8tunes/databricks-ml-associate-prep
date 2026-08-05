@@ -52,7 +52,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 import pandas as pd
 
-# --- Preparar dados ---
+# --- Preparar dados (tabela criada no Módulo 2 — rode aquele notebook primeiro) ---
 df = spark.table("workspace.default.churn_clientes")
 df_pd = df.select("tenure_months", "monthly_charges", "total_charges", "churn").toPandas()
 X = df_pd.drop("churn", axis=1)

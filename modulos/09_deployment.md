@@ -4,6 +4,8 @@
 >
 > Depois de treinar o modelo, existem 3 formas de servir predições no Databricks.
 
+> **Pré-requisito:** este módulo carrega um modelo já registrado como `workspace.default.churn_predictor` com o alias `champion` (seção 3.6 do Módulo 3) e a tabela `workspace.default.churn_clientes` (Módulo 2). Rode os Módulos 2 e 3 antes de continuar — sem isso, `mlflow.pyfunc.load_model(...)` abaixo vai falhar por o modelo/alias não existir.
+
 ---
 
 ## 9.1 As três formas de serving

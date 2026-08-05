@@ -206,6 +206,8 @@ display(
 
 ## 2.5 Funções de Coluna — Referência Rápida
 
+> Isto é uma referência de consulta, não um bloco para rodar de uma vez — `col`, `col1`, `col2` são placeholders para qualquer `F.col("nome_da_coluna")` do seu DataFrame.
+
 ```python
 from pyspark.sql import functions as F
 

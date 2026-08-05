@@ -34,6 +34,7 @@ from pyspark.sql import functions as F
 
 fs = FeatureStoreClient()
 
+# Tabela criada no Módulo 2 — rode aquele notebook primeiro se ainda não rodou
 df = spark.table("workspace.default.churn_clientes")
 
 # --- 1. Calcular as features (lógica centralizada) ---
@@ -194,6 +195,8 @@ display(predictions.select("customer_id", "prediction"))
 ---
 
 ## 8.7 Point-in-time lookups (conceito da prova)
+
+> ⚠️ Código ilustrativo — `features_historico_clientes` é uma tabela hipotética (não foi criada nas seções anteriores). Não precisa rodar isto; é só para entender o conceito.
 
 ```python
 # Point-in-time lookup evita data leakage em dados temporais:

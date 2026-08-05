@@ -39,6 +39,7 @@ Databricks AutoML:
 ```python
 from databricks import automl
 
+# Tabela criada no Módulo 2 — rode aquele notebook primeiro se ainda não rodou
 df = spark.table("workspace.default.churn_clientes")
 
 # --- Classificação ---
@@ -60,7 +61,14 @@ summary_reg = automl.regress(
 )
 
 # --- Forecasting (séries temporais) ---
-# (precisa de um dataset com coluna de tempo)
+# Forecasting precisa de uma coluna de tempo — o dataset de churn não serve para isso.
+# Exemplo hipotético: criamos aqui um dataset de vendas diárias só para ilustrar a chamada.
+import datetime
+df_vendas = spark.createDataFrame(
+    [(datetime.date(2024, 1, 1) + datetime.timedelta(days=i), 100 + i * 2) for i in range(90)],
+    ["data", "vendas"]
+)
+
 summary_ts = automl.forecast(
     dataset=df_vendas,
     target_col="vendas",

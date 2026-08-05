@@ -69,6 +69,7 @@ from pyspark.ml import Pipeline
 from pyspark.sql import functions as F
 import mlflow
 
+# Tabela criada no Módulo 2 — rode aquele notebook primeiro se ainda não rodou
 df = spark.table("workspace.default.churn_clientes")
 
 # --- Pipeline de feature engineering (do Módulo 4) ---
@@ -319,6 +320,8 @@ print(f"Pipeline completo AUC-ROC: {auc_full:.4f}")
 ---
 
 ## Avaliadores — resumo completo para a prova
+
+> Isto é uma referência de consulta, não um bloco para rodar — `labelCol="label"` é só ilustrativo (no projeto, use `labelCol="churn"`).
 
 ```python
 # CLASSIFICAÇÃO BINÁRIA
