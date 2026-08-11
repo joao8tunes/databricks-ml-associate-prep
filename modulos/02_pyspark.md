@@ -1,10 +1,17 @@
 # Módulo 2 — PySpark para ML
 
+> ⚠️ Material **experimental e não oficial**, sem vínculo com a Databricks e **sem garantia de aprovação**. Em constante evolução — confira sempre o [exam guide oficial](https://www.databricks.com/learn/certification/machine-learning-associate). [Aviso completo](../README.md#️-aviso-importante--leia-antes-de-começar).
+
+
+> **Seção oficial:** 2 — Data Processing (**19% da prova**)
+>
 > **Notebook sugerido:** `02_pyspark_para_ml`
 >
-> **O que você aprende:** DataFrames Spark, transformações essenciais, EDA, lazy evaluation.
+> **O que você aprende:** DataFrames Spark, transformações essenciais, lazy evaluation e o dataset do projeto.
 >
 > Se você conhece pandas, vai reconhecer quase tudo. A diferença é que os dados ficam distribuídos entre os nós do cluster — o Spark cuida disso automaticamente.
+>
+> A parte de **EDA, outliers, imputação e transformações estatísticas** — que é o que a prova cobra na Seção 2 — está no [Módulo 3](03_eda_preparacao.md). Aqui você aprende a mecânica do PySpark que aquele módulo usa.
 
 ---
 
@@ -84,7 +91,9 @@ print(f"Taxa de churn: {df.filter(F.col('churn') == 1).count() / df.count():.1%}
 
 ---
 
-## 2.3 Exploração de Dados (EDA)
+## 2.3 Primeira olhada nos dados
+
+> Isto é o básico para você conseguir seguir. A EDA que a prova cobra — `summary()`, outliers, comparação entre features, imputação — está no [Módulo 3](03_eda_preparacao.md).
 
 ```python
 df = spark.table("workspace.default.churn_clientes")
@@ -93,16 +102,22 @@ df = spark.table("workspace.default.churn_clientes")
 df.printSchema()
 
 # 2. Estatísticas descritivas
-display(df.describe())
+display(df.describe())    # summary() é mais completo — ver Módulo 3
 
 # 3. Contagem de nulos por coluna
-from pyspark.sql.functions import col, count, when, isnan
+# ATENÇÃO: isnan() só funciona em colunas float/double. Aplicá-la em coluna
+# de texto (customer_id, contract_type...) lança AnalysisException.
+# Por isso checamos apenas isNull(), que vale para qualquer tipo:
+from pyspark.sql.functions import col, count, when
 
 nulos = df.select([
-    count(when(col(c).isNull() | isnan(c), c)).alias(c)
+    count(when(col(c).isNull(), c)).alias(c)
     for c in df.columns
 ])
 display(nulos)
+
+# Para também capturar NaN nas colunas numéricas, veja a função
+# contar_nulos() da seção 3.1 do Módulo 3.
 
 # 4. Distribuição da variável alvo
 display(
@@ -313,7 +328,8 @@ print(f"Churn no teste:  {test_df.filter(F.col('churn')==1).count()/test_df.coun
 - `randomSplit([0.8, 0.2], seed=42)` → retorna lista de DataFrames
 - `fillna({"col": valor})` → preenche nulos em colunas específicas
 - `filter()` e `where()` são equivalentes no Spark
+- `isnan()` só funciona em colunas float/double; `isNull()` funciona em qualquer tipo
 
 ---
 
-→ Próximo: [03_mlflow.md](03_mlflow.md)
+→ Próximo: [03_eda_preparacao.md](03_eda_preparacao.md)

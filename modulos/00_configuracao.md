@@ -1,5 +1,8 @@
 # Módulo 0 — Configuração do Ambiente
 
+> ⚠️ Material **experimental e não oficial**, sem vínculo com a Databricks e **sem garantia de aprovação**. Em constante evolução — confira sempre o [exam guide oficial](https://www.databricks.com/learn/certification/machine-learning-associate). [Aviso completo](../README.md#️-aviso-importante--leia-antes-de-começar).
+
+
 > **Objetivo:** Ter o ambiente Databricks funcionando antes de iniciar os estudos.
 
 ---
@@ -16,18 +19,28 @@ O Databricks oferece uma conta gratuita chamada **Free Edition** (antiga Communi
 4. Verifique seu e-mail e clique no link de confirmação
 5. Faça login em **https://login.databricks.com**
 
-### Limitações da Free Edition
+### O que dá e o que não dá para praticar na Free Edition
 
-| Recurso | Free Edition | Conta Paga |
+| Recurso | Free Edition | Onde isso aparece no guia |
 |---|---|---|
-| Compute | Somente **Serverless** — sem criar/configurar cluster | Clusters clássicos (All-Purpose, Job) configuráveis |
-| AutoML (classificação/regressão) | ❌ Não disponível (exige cluster clássico) | ✅ Disponível |
-| Model Serving (REST) | ✅ Disponível, com limites (nº de endpoints, sem GPU, sem provisioned throughput) | ✅ Completo |
-| Feature Store | ✅ Disponível | ✅ Completo |
-| MLflow | ✅ Completo | ✅ Completo |
-| Spark ML | ✅ Completo (via Serverless) | ✅ Completo |
+| **Compute** | Somente **Serverless** — sem criar ou configurar cluster | Módulo 1 |
+| **MLflow** (tracking + registry) | ✅ Completo | Módulo 4 |
+| **Spark ML** | ✅ Completo | Módulos 5 e 6 |
+| **Unity Catalog** (tabelas, volumes, modelos) | ✅ Completo (1 metastore) | Módulos 1, 4 e 9 |
+| **Delta Lake** | ✅ Completo | Módulo 1 |
+| **Feature Store** (offline, no UC) | ✅ Disponível | Módulo 9 |
+| **Model Serving (REST)** | ✅ Com limites: poucos endpoints ativos, sem GPU, sem provisioned throughput | Módulo 10 |
+| **AutoML classificação/regressão** | ❌ Exige compute clássico com Runtime ML | Módulo 8 — só teoria |
+| **AutoML forecasting** | ⚠️ Suportado em serverless — vale testar na sua conta | Módulo 8 |
+| **Hyperopt** | ⚠️ Não vem pré-instalado — `%pip install hyperopt` | Módulo 7 |
+| **SparkTrials** | ❌ Depende de APIs de RDD, não suportadas no serverless | Módulo 7 — só teoria |
+| **Online feature tables** | ❌ Não suportado | Módulo 9 — só teoria |
+| **DBFS root público** | ❌ Desabilitado — use Unity Catalog | Módulo 1 |
+| **R e Scala** | ❌ Não suportados (a prova é toda em Python) | — |
 
-> O tópico de AutoML é cobrado na prova mesmo sem conseguir rodar no Free Edition — estude o código.
+> **Nada disso te impede de passar na prova.** Os itens marcados como "só teoria" são cobrados de forma **conceitual** — a prova pergunta o que a ferramenta faz e quando usá-la, não pede para você escrever a chamada de cabeça. Onde não dá para executar, o guia sinaliza e explica o conceito.
+
+> **Cota de uso:** a Free Edition tem cota diária de compute. Se você estourar, o workspace para até o dia seguinte. Estudar em sessões de 1–2h evita isso. Verificar sua identidade com o LinkedIn aumenta alguns limites.
 
 ---
 
@@ -57,17 +70,40 @@ Isso significa:
 **Cole e execute este código de verificação:**
 
 ```python
-import pyspark
-import mlflow
-import sklearn
+import pyspark, mlflow, sklearn
 
-print(f"PySpark:    {pyspark.__version__}")
-print(f"MLflow:     {mlflow.__version__}")
-print(f"Sklearn:    {sklearn.__version__}")
-print(f"\nSpark ativo: {spark}")
+print(f"PySpark : {pyspark.__version__}")
+print(f"MLflow  : {mlflow.__version__}")
+print(f"Sklearn : {sklearn.__version__}")
+print(f"Usuário : {spark.sql('SELECT current_user()').first()[0]}")
+print(f"Catalog : {spark.sql('SELECT current_catalog()').first()[0]}")
+print("\nSpark ativo:", spark)
 ```
 
-Se os 4 itens aparecerem sem erro, o ambiente está pronto.
+Se tudo aparecer sem erro, o ambiente está pronto.
+
+```python
+# Verificação opcional — pacotes que alguns módulos usam.
+# Se algum acusar "NAO instalado", instale só quando chegar no módulo correspondente.
+for pacote, modulo in [
+    ("databricks-feature-engineering", "databricks.feature_engineering"),  # Módulo 9
+    ("hyperopt", "hyperopt"),                                              # Módulo 7
+]:
+    try:
+        __import__(modulo)
+        print(f"OK           {pacote}")
+    except ImportError:
+        print(f"NAO instalado {pacote}  →  %pip install {pacote}")
+```
+
+### Se algo falhar
+
+| Erro | O que fazer |
+|---|---|
+| `ModuleNotFoundError` | Rode `%pip install <pacote>` na primeira célula, depois `dbutils.library.restartPython()` |
+| Célula fica "Waiting" por muito tempo | O serverless está iniciando. É normal na primeira execução do dia |
+| `DBFS_DISABLED` | Esperado na Free Edition. Use Unity Catalog — explicado no [Módulo 1](01_plataforma.md#15-dbfs--teoria-de-prova) |
+| Compute indisponível / quota | Você atingiu a cota diária da Free Edition. Ela reseta no dia seguinte |
 
 ---
 
