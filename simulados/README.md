@@ -86,12 +86,14 @@ Ao adicionar uma questão:
 
 1. **Amarre a um objetivo oficial.** Se ela não corresponde a nenhuma linha do [mapa do exam guide](../GUIA_DA_PROVA.md), provavelmente não cai na prova.
 2. **Escreva os distratores plausíveis.** Alternativas obviamente absurdas não treinam ninguém.
-3. **Explique também por que as outras estão erradas.** É na explicação que o estudo acontece.
-4. **Use `id` maior que o último existente** e mantenha `secao` coerente com `modulo`.
-5. Rode a validação antes de abrir o PR:
+3. **Nunca cite a posição ou a letra de uma alternativa.** As alternativas são embaralhadas a cada execução, então "as alternativas B e C estão corretas", "todas as anteriores" e "nenhuma das acima" perdem o sentido na tela. Quando a resposta envolve mais de uma opção, use múltipla seleção.
+4. **Mantenha o comprimento parecido entre as alternativas.** Se só a correta traz a justificativa completa, dá para acertar escolhendo a mais longa sem ler o enunciado. A justificativa vai na `explicacao`.
+5. **Explique também por que as outras estão erradas.** É na explicação que o estudo acontece.
+6. **Use `id` maior que o último existente** e mantenha `secao` coerente com `modulo`.
+7. Rode a validação antes de abrir o PR:
 
 ```bash
 python simulados/validar_questoes.py
 ```
 
-O script confere campos obrigatórios, IDs duplicados, índices de resposta fora do intervalo, alternativas repetidas, explicações vazias, se o embaralhamento preserva a resposta correta e se cada seção tem questões suficientes para o Modo Prova. Ele sai com código 1 em caso de problema, então serve direto em CI.
+O script confere campos obrigatórios, IDs duplicados, índices de resposta fora do intervalo, alternativas repetidas, explicações vazias, referências à posição ou à letra de alternativas, se o reindexamento do embaralhamento preserva a resposta correta e se cada seção tem questões suficientes para o Modo Prova. Ele sai com código 1 em caso de problema, então serve direto em CI.

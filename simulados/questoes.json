@@ -1585,15 +1585,18 @@
     "modulo": "pyspark",
     "modulo_nome": "02 - PySpark para ML",
     "dificuldade": "dificil",
-    "pergunta": "Qual é a forma correta de extrair a probabilidade da classe positiva (churn=1) das predições de um classificador Spark ML?",
+    "pergunta": "Quais formas extraem corretamente a probabilidade da classe positiva (churn=1) das predições de um classificador Spark ML? (Selecione DUAS)",
     "alternativas": [
-      "predictions.select('probability_positive')",
       "predictions.withColumn('prob_churn', F.col('probability')[1])",
       "predictions.select(F.col('probability').getItem(1))",
-      "As alternativas B e C estão corretas."
+      "predictions.select('probability_positive')",
+      "predictions.withColumn('prob_churn', F.col('probability').item(1))"
     ],
-    "resposta_correta": 3,
-    "explicacao": "A coluna 'probability' é um vetor onde o índice corresponde à classe. Para classe 1 (positiva): F.col('probability')[1] ou F.col('probability').getItem(1) — ambas funcionam. Não existe coluna 'probability_positive'.",
+    "resposta_correta": [
+      0,
+      1
+    ],
+    "explicacao": "A coluna 'probability' é um vetor em que o índice corresponde à classe. Para a classe 1, F.col('probability')[1] e F.col('probability').getItem(1) são equivalentes e ambas funcionam. Não existe coluna 'probability_positive' — o classificador produz rawPrediction, probability e prediction. E Column não tem método .item().",
     "secao": 3,
     "secao_nome": "Model Development"
   },
