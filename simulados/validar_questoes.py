@@ -1,10 +1,10 @@
 """
-Valida o banco de questoes antes de abrir um pull request.
+Valida o banco de questões antes de abrir um pull request.
 
 Uso:
     python simulados/validar_questoes.py
 
-Sai com codigo 1 se encontrar qualquer problema.
+Sai com código 1 se encontrar qualquer problema.
 """
 
 import collections
@@ -53,11 +53,11 @@ def validar(questoes):
             continue
 
         if q["modulo"] not in MODULOS_VALIDOS:
-            problemas.append(f"#{qid}: modulo invalido: {q['modulo']}")
+            problemas.append(f"#{qid}: módulo inválido: {q['modulo']}")
         if q["dificuldade"] not in DIFICULDADES_VALIDAS:
-            problemas.append(f"#{qid}: dificuldade invalida: {q['dificuldade']}")
+            problemas.append(f"#{qid}: dificuldade inválida: {q['dificuldade']}")
         if q["secao"] not in SECOES_VALIDAS:
-            problemas.append(f"#{qid}: secao invalida: {q['secao']}")
+            problemas.append(f"#{qid}: seção inválida: {q['secao']}")
 
         alternativas = q["alternativas"]
         if len(alternativas) < 2:
@@ -69,17 +69,17 @@ def validar(questoes):
         if not corretas:
             problemas.append(f"#{qid}: sem resposta correta")
         if len(set(corretas)) != len(corretas):
-            problemas.append(f"#{qid}: indices de resposta repetidos")
+            problemas.append(f"#{qid}: índices de resposta repetidos")
         if len(corretas) >= len(alternativas):
             problemas.append(f"#{qid}: todas as alternativas marcadas como corretas")
         for c in corretas:
             if not isinstance(c, int) or not (0 <= c < len(alternativas)):
-                problemas.append(f"#{qid}: indice de resposta fora do intervalo: {c}")
+                problemas.append(f"#{qid}: índice de resposta fora do intervalo: {c}")
 
         if not q["pergunta"].strip():
             problemas.append(f"#{qid}: enunciado vazio")
         if not q["explicacao"].strip():
-            problemas.append(f"#{qid}: explicacao vazia")
+            problemas.append(f"#{qid}: explicação vazia")
 
     # O embaralhamento do quiz precisa preservar a resposta correta
     random.seed(0)
@@ -96,12 +96,12 @@ def validar(questoes):
         if texto_antes != texto_depois:
             problemas.append(f"#{q['id']}: embaralhamento nao preserva a resposta correta")
 
-    # O Modo Prova precisa de questoes suficientes em cada secao
+    # O Modo Prova precisa de questões suficientes em cada seção
     por_secao = collections.Counter(q.get("secao") for q in questoes)
     for secao, cota in COTAS_MODO_PROVA.items():
         if por_secao[secao] < cota:
             problemas.append(
-                f"secao {secao}: {por_secao[secao]} questoes, "
+                f"seção {secao}: {por_secao[secao]} questões, "
                 f"abaixo da cota {cota} exigida pelo Modo Prova"
             )
 
@@ -115,16 +115,16 @@ def main():
     total = len(questoes)
     pesos = {1: 38, 2: 19, 3: 31, 4: 12}
 
-    print(f"Questoes: {total}\n")
-    print("Distribuicao por secao (alvo = peso oficial):")
+    print(f"Questões: {total}\n")
+    print("Distribuição por seção (alvo = peso oficial):")
     for secao in sorted(SECOES_VALIDAS):
         n = por_secao[secao]
-        print(f"  Secao {secao}: {n:3d}  ({n / total:5.1%}  | alvo {pesos[secao]}%)")
+        print(f"  Seção {secao}: {n:3d}  ({n / total:5.1%}  | alvo {pesos[secao]}%)")
 
     dificuldades = collections.Counter(q.get("dificuldade") for q in questoes)
     print("\nPor dificuldade:", dict(sorted(dificuldades.items())))
     multiplas = sum(1 for q in questoes if isinstance(q.get("resposta_correta"), list))
-    print(f"Multipla selecao: {multiplas}")
+    print(f"Múltipla seleção: {multiplas}")
 
     if problemas:
         print(f"\n{len(problemas)} PROBLEMA(S):")
@@ -132,7 +132,7 @@ def main():
             print("  -", p)
         sys.exit(1)
 
-    print("\nBanco valido.")
+    print("\nBanco válido.")
 
 
 if __name__ == "__main__":

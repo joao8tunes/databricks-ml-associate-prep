@@ -1,8 +1,8 @@
 """
 Simulado Interativo — Databricks Certified Machine Learning Associate
 
-Material experimental e nao oficial. Nao ha garantia de aprovacao.
-Execucao: streamlit run simulados/quiz.py
+Material experimental e não oficial. Não há garantia de aprovação.
+Execução: streamlit run simulados/quiz.py
 """
 
 import json
