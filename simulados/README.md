@@ -28,6 +28,7 @@ streamlit run simulados/quiz.py
 | Tempo | 90 minutos, cronometrado | Livre |
 | Feedback | Só no final | Imediato, a cada questão |
 | Filtros | Nenhum — cobre tudo | Seção, módulo, dificuldade |
+| Score | Sobre as 48 — o que ficou em branco conta como erro | Sobre o que você respondeu |
 | Para quê | Medir prontidão real | Fixar conteúdo de um tópico |
 
 A distribuição do Modo Prova segue os pesos oficiais das quatro seções:

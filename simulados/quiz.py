@@ -378,29 +378,35 @@ elif st.session_state.fase == "feedback":
 # ---------------------------------------------------------------------------
 elif st.session_state.fase == "resultado":
     respostas = st.session_state.respostas
-    total_apresentadas = len(st.session_state.questoes)
+    questoes = st.session_state.questoes
+    total_apresentadas = len(questoes)
     respondidas = len(respostas)
     acertos = sum(1 for e, c, _ in respostas if e == c)
-    pct = acertos / respondidas * 100 if respondidas else 0.0
     modo_prova = st.session_state.get("modo") == "prova"
+
+    # No Modo Prova o denominador é o total apresentado: questão em branco conta como
+    # erro, igual à prova real. No Modo Estudo só se chega aqui respondendo tudo.
+    em_branco = questoes[respondidas:] if modo_prova else []
+    base = total_apresentadas if modo_prova else respondidas
+    pct = acertos / base * 100 if base else 0.0
 
     st.title("📊 Resultado")
 
-    if modo_prova and respondidas < total_apresentadas:
+    if em_branco:
         st.error(
-            f"⏱️ O tempo acabou com {total_apresentadas - respondidas} questões não respondidas. "
-            "Na prova real, questões em branco contam como erro — controle o ritmo."
+            f"⏱️ O tempo acabou com {len(em_branco)} questões não respondidas. "
+            "Elas contam como erro no score abaixo, igual à prova real — controle o ritmo."
         )
 
     col1, col2, col3 = st.columns(3)
-    col1.metric("Acertos", f"{acertos}/{respondidas}")
+    col1.metric("Acertos", f"{acertos}/{base}")
     col2.metric("Score", f"{pct:.1f}%")
     col3.metric(
         "Meta de segurança",
         "✅ Atingida" if pct >= META_APROVACAO else "❌ Não atingida",
         delta=f"≥ {META_APROVACAO}%",
     )
-    st.progress(acertos / respondidas if respondidas else 0)
+    st.progress(acertos / base if base else 0)
 
     st.caption(
         "⚠️ O Databricks **não publica** a nota de corte deste exame. Os 70% usados aqui são "
@@ -420,13 +426,22 @@ elif st.session_state.fase == "resultado":
     st.divider()
     st.subheader("📈 Desempenho por seção oficial")
 
-    stats_secao = {}
-    for escolhas, corretas, q in respostas:
-        s = q["secao"]
-        stats_secao.setdefault(s, {"acertos": 0, "total": 0})
-        stats_secao[s]["total"] += 1
-        if escolhas == corretas:
-            stats_secao[s]["acertos"] += 1
+    def acumular(chave):
+        """Agrupa o desempenho, contando as questões em branco como erro."""
+        stats = {}
+        for escolhas, corretas, q in respostas:
+            k = chave(q)
+            stats.setdefault(k, {"acertos": 0, "total": 0})
+            stats[k]["total"] += 1
+            if escolhas == corretas:
+                stats[k]["acertos"] += 1
+        for q in em_branco:
+            k = chave(q)
+            stats.setdefault(k, {"acertos": 0, "total": 0})
+            stats[k]["total"] += 1
+        return stats
+
+    stats_secao = acumular(lambda q: q["secao"])
 
     for secao in sorted(stats_secao):
         st_ = stats_secao[secao]
@@ -442,13 +457,7 @@ elif st.session_state.fase == "resultado":
     st.divider()
     st.subheader("📚 Desempenho por módulo")
 
-    stats_modulo = {}
-    for escolhas, corretas, q in respostas:
-        m = q["modulo_nome"]
-        stats_modulo.setdefault(m, {"acertos": 0, "total": 0})
-        stats_modulo[m]["total"] += 1
-        if escolhas == corretas:
-            stats_modulo[m]["acertos"] += 1
+    stats_modulo = acumular(lambda q: q["modulo_nome"])
 
     for modulo, s in sorted(stats_modulo.items(), key=lambda x: x[1]["acertos"] / x[1]["total"]):
         pct_m = s["acertos"] / s["total"] * 100
@@ -471,8 +480,22 @@ elif st.session_state.fase == "resultado":
                     f"Seção {q['secao']} — {q['secao_nome']} · {q['modulo_nome']} · "
                     f"{q['dificuldade']}"
                 )
-    else:
+    elif not em_branco:
         st.success("🏆 Você acertou todas as questões.")
+
+    if em_branco:
+        st.subheader(f"⏱️ Questões não respondidas ({len(em_branco)})")
+        st.caption("Contadas como erro. Revise-as também.")
+        for i, q in enumerate(em_branco, 1):
+            with st.expander(f"Em branco {i}: {q['pergunta'][:80]}..."):
+                st.markdown(f"**{q['pergunta']}**")
+                st.markdown("")
+                render_alternativas(q, [], q["_corretas"])
+                st.info(f"💡 **Explicação:** {q['explicacao']}")
+                st.caption(
+                    f"Seção {q['secao']} — {q['secao_nome']} · {q['modulo_nome']} · "
+                    f"{q['dificuldade']}"
+                )
 
     st.divider()
     col_a, col_b = st.columns(2)
