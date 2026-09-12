@@ -121,7 +121,7 @@ streamlit run simulados/quiz.py
 ```
 
 **Funcionalidades:**
-- **176 questões autorais** mapeadas aos objetivos do exam guide oficial
+- **252 questões autorais** mapeadas aos objetivos do exam guide oficial
 - **Modo Prova:** 48 questões, 90 minutos, distribuição por seção igual à da prova real (18/9/15/6)
 - **Modo Estudo:** filtro por seção, módulo, dificuldade e quantidade, com feedback imediato
 - Questões de **múltipla seleção**, como na prova real
