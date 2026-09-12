@@ -3011,5 +3011,1442 @@
     ],
     "resposta_correta": 1,
     "explicacao": "A UDF Python comum paga custo de serialização JVM<->Python a cada linha. A pandas_udf transfere blocos via Apache Arrow e entrega Series pandas a função, permitindo operações vetorizadas de numpy/sklearn. A diferença de performance costuma ser de ordens de grandeza. Ambas executam nos workers."
+  },
+  {
+    "id": 177,
+    "modulo": "plataforma",
+    "modulo_nome": "01 - Plataforma Databricks",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Um cientista de dados importa os dados com Spark SQL e depois treina o modelo com Spark ML. Qual recurso de compute atende melhor a esse fluxo?",
+    "alternativas": [
+      "Um SQL Warehouse, que executa Spark SQL com o melhor custo-benefício.",
+      "Um cluster multi-node com Databricks Runtime ML, que executa ambas as etapas.",
+      "Um cluster Single Node, suficiente porque o Spark ML roda no driver.",
+      "Um Job Cluster com o runtime padrão, sem bibliotecas de ML instaladas."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Spark SQL e Spark ML precisam de executores Spark: o SQL Warehouse só atende consultas SQL e não roda código Spark ML. O Single Node funciona, mas não distribui o treino. Um cluster multi-node com Runtime ML cobre a ingestão e o treino distribuído."
+  },
+  {
+    "id": 178,
+    "modulo": "plataforma",
+    "modulo_nome": "01 - Plataforma Databricks",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "facil",
+    "pergunta": "Um Job com três tarefas sucessivas falhou na última execução. Qual é a forma mais rápida de identificar qual tarefa causou a falha?",
+    "alternativas": [
+      "Executar cada notebook interativamente até reproduzir o erro.",
+      "Consultar a visão em matriz das execuções do Job na interface.",
+      "Migrar o Job para uma pipeline de Delta Live Tables com logs.",
+      "Configurar cada tarefa para usar um cluster dedicado e repetir."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A interface de Jobs mostra uma visão em matriz com o status de cada tarefa em cada execução, indicando imediatamente qual delas falhou e dando acesso aos logs. Reexecutar notebooks manualmente ou trocar a arquitetura do Job custa muito mais tempo."
+  },
+  {
+    "id": 179,
+    "modulo": "plataforma",
+    "modulo_nome": "01 - Plataforma Databricks",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Um projeto existe como um Repo no Databricks e é retreinado por um Job diário. Um novo integrante precisa alterar o pré-processamento sem afetar o que roda todo dia. Qual abordagem é a correta?",
+    "alternativas": [
+      "Clonar os notebooks para uma pasta do Workspace e editar por lá.",
+      "Criar um branch novo no Repo, commitar as mudanças e fazer push.",
+      "Criar outro repositório Git e copiar o código antes de alterar.",
+      "Editar os notebooks do Repo direto no branch usado pelo Job."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O Repo do Databricks é um clone Git: criar um branch isola as mudanças do branch que o Job usa. Depois as alterações entram via pull request, com revisão. Copiar notebooks para fora do Repo quebra o versionamento e o caminho de volta para produção."
+  },
+  {
+    "id": 180,
+    "modulo": "plataforma",
+    "modulo_nome": "01 - Plataforma Databricks",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Você vai treinar um modelo scikit-learn que não distribui o treino. Quando um cluster multi-node traz ganho real em relação a um Single Node?",
+    "alternativas": [
+      "Sempre, porque o scikit-learn paraleliza o treino entre executores.",
+      "Quando o tuning for distribuído, com SparkTrials ou pandas UDFs.",
+      "Somente quando o modelo for convertido para Spark ML antes do fit.",
+      "Nunca, porque o scikit-learn só executa no nó driver do cluster."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O fit do scikit-learn roda em um único nó. Os executores só ajudam se você distribuir algo em volta dele: várias combinações de hiperparâmetros com SparkTrials, ou um modelo por grupo com applyInPandas. Sem isso, o Single Node entrega o mesmo resultado por menos custo."
+  },
+  {
+    "id": 181,
+    "modulo": "plataforma",
+    "modulo_nome": "01 - Plataforma Databricks",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "facil",
+    "pergunta": "Uma equipe se cansou de instalar MLflow, XGBoost e PyTorch a cada novo cluster. Como eliminar essas instalações manuais?",
+    "alternativas": [
+      "Adicionar uma linha que habilita o Runtime ML no init script do cluster.",
+      "Escolher uma versão do Databricks Runtime ML no menu de runtime do cluster.",
+      "Marcar a caixa 'Databricks Runtime ML' na tela de criação do cluster.",
+      "Definir a variável runtime-version como 'ml' na sessão Spark do notebook."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O Runtime ML não é uma opção que se liga: é uma linha separada de versões do Databricks Runtime. Basta selecionar uma versão marcada como ML no menu de runtime ao criar o cluster, e as bibliotecas já vêm instaladas e com versões compatíveis entre si."
+  },
+  {
+    "id": 182,
+    "modulo": "plataforma",
+    "modulo_nome": "01 - Plataforma Databricks",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "dificil",
+    "pergunta": "O que o comando OPTIMIZE tabela ZORDER BY (customer_id) faz em uma tabela Delta usada como fonte de features?",
+    "alternativas": [
+      "Cria um índice B-tree sobre customer_id para buscas pontuais rápidas.",
+      "Compacta arquivos pequenos e co-localiza os dados por customer_id.",
+      "Ordena fisicamente a tabela inteira por customer_id a cada escrita.",
+      "Particiona a tabela por customer_id, criando um diretório por cliente."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "OPTIMIZE compacta muitos arquivos pequenos em arquivos maiores, e o ZORDER co-localiza nos mesmos arquivos os registros com valores próximos da coluna. Isso melhora o data skipping nos filtros por essa coluna. Não é índice nem particionamento."
+  },
+  {
+    "id": 183,
+    "modulo": "mlflow",
+    "modulo_nome": "04 - MLflow",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Após várias execuções em um experimento, você quer o run_id daquele com o menor RMSE. Qual chamada resolve isso?",
+    "alternativas": [
+      "mlflow.search_runs(exp_id, order_by=['metrics.rmse ASC'])['run_id'][0]",
+      "mlflow.search_runs(exp_id, filter_string='metrics.rmse')['run_id'].min()",
+      "mlflow.get_run(exp_id, metric='rmse', best=True).info.run_id",
+      "mlflow.list_run_infos(exp_id, sort='rmse').head(1).run_id"
+    ],
+    "resposta_correta": 0,
+    "explicacao": "mlflow.search_runs() devolve um DataFrame pandas com uma linha por run. Ordenando por metrics.rmse em ordem crescente, o menor RMSE fica na primeira linha, e a coluna run_id traz o identificador. Ordem crescente porque, em RMSE, menor é melhor."
+  },
+  {
+    "id": 184,
+    "modulo": "mlflow",
+    "modulo_nome": "04 - MLflow",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Um colega usou order_by=['metrics.rmse DESC'] e pegou a primeira linha do resultado esperando o melhor modelo de regressão. Qual é o problema?",
+    "alternativas": [
+      "Nenhum: o MLflow sempre devolve o melhor run na primeira linha.",
+      "A ordem decrescente coloca o pior RMSE em primeiro, e não o melhor.",
+      "O campo metrics.rmse não pode ser usado em order_by, apenas em filtros.",
+      "O resultado precisa ser agrupado por experimento antes de ser ordenado."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O MLflow ordena exatamente como pedido, sem saber se a métrica é melhor quando maior ou menor. RMSE é erro: quanto menor, melhor. Com DESC a primeira linha é o pior run. Para métricas como acurácia ou R2, aí sim DESC é o correto."
+  },
+  {
+    "id": 185,
+    "modulo": "mlflow",
+    "modulo_nome": "04 - MLflow",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Para que serve a signature registrada junto com o modelo no MLflow?",
+    "alternativas": [
+      "Assinar criptograficamente o modelo para garantir sua autenticidade.",
+      "Declarar o schema de entrada e saída, validando os dados na inferência.",
+      "Registrar o autor e o timestamp do treino nos metadados da versão.",
+      "Fixar as versões das bibliotecas usadas durante o treino do modelo."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A signature descreve as colunas e os tipos esperados na entrada e o formato da saída. O serving usa isso para validar o payload e rejeitar requisições fora do contrato, em vez de devolver predições silenciosamente erradas. Dependências ficam no requirements.txt do modelo."
+  },
+  {
+    "id": 186,
+    "modulo": "mlflow",
+    "modulo_nome": "04 - MLflow",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "O modelo prod.vendas.churn tem a versão 7 aprovada nos testes e você quer promovê-la a campeã usando aliases do Unity Catalog. Qual chamada faz isso?",
+    "alternativas": [
+      "client.transition_model_version_stage('prod.vendas.churn', 7, 'Production')",
+      "client.set_registered_model_alias('prod.vendas.churn', 'champion', 7)",
+      "client.update_model_version('prod.vendas.churn', 7, alias='champion')",
+      "mlflow.register_model('models:/prod.vendas.churn/7', 'champion')"
+    ],
+    "resposta_correta": 1,
+    "explicacao": "No registry do Unity Catalog os stages foram substituídos por aliases, definidos com set_registered_model_alias(nome, alias, versao). Promover um challenger é apontar o alias champion para a nova versão — o código de inferência que usa @champion passa a servi-la sem alteração."
+  },
+  {
+    "id": 187,
+    "modulo": "mlflow",
+    "modulo_nome": "04 - MLflow",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Quais são benefícios de registrar modelos no registry do Unity Catalog em vez do registry do workspace? (Selecione DUAS)",
+    "alternativas": [
+      "Os modelos ficam acessíveis e governados em todos os workspaces da conta.",
+      "As permissões seguem o modelo de governança do catálogo, com linhagem.",
+      "Os modelos passam a ser servidos sem custo de compute nos endpoints.",
+      "As versões antigas são removidas automaticamente a cada promoção."
+    ],
+    "resposta_correta": [
+      0,
+      1
+    ],
+    "explicacao": "O registry do Unity Catalog é de nível de conta: o mesmo modelo é descoberto e consumido por vários workspaces, com permissões, auditoria e linhagem do catálogo. Nada disso muda o custo do serving nem apaga versões antigas — o histórico é preservado."
+  },
+  {
+    "id": 188,
+    "modulo": "mlflow",
+    "modulo_nome": "04 - MLflow",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Você ativou mlflow.autolog() e também quer registrar uma métrica de negócio calculada manualmente. Isso é possível?",
+    "alternativas": [
+      "Não, o autolog bloqueia chamadas manuais de log dentro do mesmo run.",
+      "Sim, basta chamar mlflow.log_metric() dentro do mesmo run ativo.",
+      "Sim, mas apenas depois de desativar o autolog com mlflow.autolog(False).",
+      "Não, métricas customizadas exigem um run separado criado manualmente."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O autolog apenas adiciona registros automáticos ao run ativo; ele não impede o log manual. Chamar log_metric, log_param ou log_artifact dentro do mesmo bloco complementa o que foi capturado automaticamente, e tudo aparece junto no run."
+  },
+  {
+    "id": 189,
+    "modulo": "mlflow",
+    "modulo_nome": "04 - MLflow",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Qual chamada loga o modelo no run e o registra no Unity Catalog em uma única operação?",
+    "alternativas": [
+      "mlflow.sklearn.log_model(modelo, 'model', registered_model_name='cat.sch.churn')",
+      "mlflow.sklearn.save_model(modelo, 'cat.sch.churn', register=True)",
+      "mlflow.register_model(modelo, 'cat.sch.churn', log_artifacts=True)",
+      "mlflow.sklearn.log_model(modelo, 'cat.sch.churn', unity_catalog=True)"
+    ],
+    "resposta_correta": 0,
+    "explicacao": "O parâmetro registered_model_name do log_model faz as duas coisas: grava o artefato no run e cria uma nova versão do modelo registrado com aquele nome. Com o registry apontado para o Unity Catalog, o nome precisa ser completo, no formato catalogo.schema.modelo."
+  },
+  {
+    "id": 190,
+    "modulo": "automl",
+    "modulo_nome": "08 - AutoML",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Qual etapa do ciclo de vida do modelo NÃO é executada dentro de um experimento do Databricks AutoML?",
+    "alternativas": [
+      "O ajuste de hiperparâmetros dos algoritmos candidatos.",
+      "A publicação do modelo em um endpoint de serving.",
+      "A avaliação dos modelos treinados pela métrica escolhida.",
+      "A geração de um notebook de exploração dos dados de entrada."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O AutoML explora os dados, treina e tuna vários algoritmos, avalia os trials e registra o melhor modelo — tudo com notebooks editáveis. O que ele não faz é colocar o modelo em produção: criar o endpoint e direcionar o tráfego continua sendo uma etapa manual."
+  },
+  {
+    "id": 191,
+    "modulo": "automl",
+    "modulo_nome": "08 - AutoML",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "facil",
+    "pergunta": "Qual métrica NÃO pode ser usada como primary_metric em um experimento de regressão do AutoML?",
+    "alternativas": [
+      "F1",
+      "R2",
+      "MAE",
+      "RMSE"
+    ],
+    "resposta_correta": 0,
+    "explicacao": "F1 é a média harmônica entre precision e recall, definida sobre uma matriz de confusão, e só faz sentido em classificação. Para regressão o AutoML aceita r2, rmse, mae e mse. Usar uma métrica do tipo errado é um erro clássico de configuração."
+  },
+  {
+    "id": 192,
+    "modulo": "automl",
+    "modulo_nome": "08 - AutoML",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "facil",
+    "pergunta": "Para que serve o parâmetro timeout_minutes em automl.classify()?",
+    "alternativas": [
+      "Define o tempo máximo de cada treino individual antes de ser abortado.",
+      "Define o tempo total do experimento antes de encerrar a busca.",
+      "Define o intervalo entre as execuções agendadas do experimento.",
+      "Define o tempo de espera pelo cluster antes de falhar o experimento."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "timeout_minutes limita a duração total do experimento: o AutoML treina o máximo de trials que couber nesse orçamento e devolve o melhor encontrado até ali. É o principal controle de custo, já que a busca poderia continuar indefinidamente."
+  },
+  {
+    "id": 193,
+    "modulo": "automl",
+    "modulo_nome": "08 - AutoML",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Em qual cenário o Databricks AutoML é a escolha MENOS adequada?",
+    "alternativas": [
+      "Quando é preciso um baseline rápido sobre dados tabulares.",
+      "Quando a equipe precisa de uma arquitetura de deep learning customizada.",
+      "Quando vários algoritmos candidatos devem ser comparados entre si.",
+      "Quando é preciso entender quais features pesam mais no resultado."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O AutoML cobre problemas supervisionados tabulares com algoritmos clássicos. Uma arquitetura de rede neural própria, com loop de treino customizado, está fora do escopo — nesse caso o caminho é escrever o treino manualmente e usar o MLflow para rastrear os experimentos."
+  },
+  {
+    "id": 194,
+    "modulo": "automl",
+    "modulo_nome": "08 - AutoML",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Onde o AutoML reporta problemas detectados nos dados, como colunas de alta cardinalidade ou com muitos valores nulos?",
+    "alternativas": [
+      "Em avisos no experimento e no notebook de exploração de dados gerado.",
+      "Em um arquivo de log do cluster acessível apenas pelo administrador.",
+      "Em uma tabela Delta de auditoria criada no schema do experimento.",
+      "Em comentários dentro do notebook do melhor trial, junto ao código."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "O AutoML gera um notebook de exploração com o perfil de cada coluna e exibe alertas no próprio experimento quando encontra problemas — colunas descartadas, alta cardinalidade, excesso de nulos, desbalanceamento. É por onde se começa o diagnóstico antes de confiar no resultado."
+  },
+  {
+    "id": 195,
+    "modulo": "feature_store",
+    "modulo_nome": "09 - Feature Store",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Você criou uma feature table com uma descrição detalhada e agora quer recuperar esse texto programaticamente. Qual código funciona?",
+    "alternativas": [
+      "fe.get_table('cat.sch.tbl').description",
+      "fe.create_training_set('cat.sch.tbl').description",
+      "fe.read_table('cat.sch.tbl').describe()",
+      "Não existe forma de ler a descrição pela API Python."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "fe.get_table() devolve o objeto de metadados da feature table, com atributos como description, primary_keys, features e table_id. read_table devolve os dados, não os metadados, e create_training_set serve para montar o conjunto de treino."
+  },
+  {
+    "id": 196,
+    "modulo": "feature_store",
+    "modulo_nome": "09 - Feature Store",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "dificil",
+    "pergunta": "Por que geralmente NÃO se faz one-hot encoding das variáveis categóricas dentro do feature store?",
+    "alternativas": [
+      "Porque o one-hot encoding não é uma forma usual de representar categorias.",
+      "Porque a codificação adequada depende do algoritmo que vai consumir a feature.",
+      "Porque o one-hot encoding depende dos valores da variável alvo de cada modelo.",
+      "Porque o Feature Store não aceita colunas do tipo vetor esparso."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O feature store guarda features reutilizáveis por vários modelos. Modelos de árvore lidam bem com categorias codificadas como índices, enquanto modelos lineares precisam de one-hot; codificar cedo explode a dimensionalidade e impõe uma escolha a todos os consumidores. Guarde o valor bruto e codifique no pipeline."
+  },
+  {
+    "id": 197,
+    "modulo": "feature_store",
+    "modulo_nome": "09 - Feature Store",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Um endpoint de serving em tempo real precisa buscar features com latência de milissegundos. O que é necessário?",
+    "alternativas": [
+      "Publicar a feature table em um online store, consultado pelo endpoint.",
+      "Aumentar o número de workers do cluster que hospeda a feature table.",
+      "Converter a feature table Delta para o formato Parquet particionado.",
+      "Habilitar o cache do Delta Lake no cluster usado pelo endpoint."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "A feature table offline vive em Delta e serve treino e batch, com latência de segundos. Para inferência em tempo real é preciso publicá-la em um online store (por exemplo, uma online table), otimizado para leituras pontuais por chave primária."
+  },
+  {
+    "id": 198,
+    "modulo": "feature_store",
+    "modulo_nome": "09 - Feature Store",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "dificil",
+    "pergunta": "Um modelo treinado com fe.create_training_set() e logado com fe.log_model() é servido em um endpoint. O que acontece quando o endpoint recebe apenas a chave primária do cliente?",
+    "alternativas": [
+      "O endpoint retorna erro, pois faltam as colunas de feature na requisição.",
+      "O endpoint busca as features no online store e completa a requisição.",
+      "O endpoint usa valores médios das features calculados durante o treino.",
+      "O endpoint consulta a tabela offline em Delta a cada requisição recebida."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O fe.log_model() grava junto com o modelo a especificação dos FeatureLookups. Na inferência, o serving resolve essas buscas automaticamente no online store publicado e monta o vetor de features. Por isso a aplicação cliente só precisa enviar as chaves."
+  },
+  {
+    "id": 199,
+    "modulo": "feature_store",
+    "modulo_nome": "09 - Feature Store",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "facil",
+    "pergunta": "O que distingue uma feature table de uma tabela Delta comum?",
+    "alternativas": [
+      "Ela é armazenada em um formato binário proprietário do Feature Store.",
+      "Ela declara chaves primárias e metadados que permitem lookups e linhagem.",
+      "Ela só pode ser lida pela API Python, nunca por consultas SQL.",
+      "Ela mantém automaticamente uma cópia em memória para acesso rápido."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Por baixo, a feature table é uma tabela Delta no Unity Catalog. O que muda são os metadados: chaves primárias declaradas, registro de quais modelos consomem quais features e a linhagem correspondente. Ela continua consultável por SQL normalmente."
+  },
+  {
+    "id": 200,
+    "modulo": "mlops",
+    "modulo_nome": "11 - MLOps e Governança",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Quais práticas fazem parte de uma boa estratégia de MLOps no Databricks? (Selecione DUAS)",
+    "alternativas": [
+      "Manter ambientes separados de desenvolvimento, homologação e produção.",
+      "Versionar o código de treino em Git e rastrear os runs com o MLflow.",
+      "Editar os notebooks direto em produção para acelerar as correções.",
+      "Copiar arquivos de modelo entre usuários, evitando o overhead do registry."
+    ],
+    "resposta_correta": [
+      0,
+      1
+    ],
+    "explicacao": "MLOps traz para o ciclo de ML as práticas de engenharia de software: ambientes isolados, código versionado, experimentos rastreáveis e promoção controlada. Editar em produção e trocar modelos por arquivos soltos destroem a reprodutibilidade e a auditoria."
+  },
+  {
+    "id": 201,
+    "modulo": "mlops",
+    "modulo_nome": "11 - MLOps e Governança",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Por que separar os ambientes de desenvolvimento, homologação e produção em um projeto de ML?",
+    "alternativas": [
+      "Para reduzir o custo, já que cada ambiente usa clusters menores.",
+      "Para que experimentos não afetem o que está servindo os usuários.",
+      "Para permitir que cada cientista use uma versão diferente do runtime.",
+      "Para que o MLflow possa registrar os runs em catálogos distintos."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A separação existe para isolar risco: um experimento que quebra uma tabela ou sobrescreve um modelo não pode atingir quem está em produção. Como efeito, cada ambiente ganha permissões e dados próprios, e a promoção entre eles vira um ponto de controle."
+  },
+  {
+    "id": 202,
+    "modulo": "mlops",
+    "modulo_nome": "11 - MLOps e Governança",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Qual é o papel dos testes automatizados na promoção de um modelo para produção?",
+    "alternativas": [
+      "Garantir que o modelo tenha a maior acurácia possível no conjunto de teste.",
+      "Verificar critérios objetivos antes de o alias de produção ser movido.",
+      "Substituir a necessidade de monitorar o modelo depois do deployment.",
+      "Assegurar que o treino seja reproduzido com exatamente os mesmos dados."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Os testes checam o que precisa ser verdade antes de servir: schema de entrada, desempenho acima de um limiar em um conjunto de validação, latência aceitável, ausência de regressão em relação ao campeão atual. Só depois de passarem o alias de produção é movido."
+  },
+  {
+    "id": 203,
+    "modulo": "mlops",
+    "modulo_nome": "11 - MLOps e Governança",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Quais sinais indicam que um modelo em produção precisa ser retreinado?",
+    "alternativas": [
+      "O volume de requisições ao endpoint aumentou em relação ao mês anterior.",
+      "A distribuição das features de entrada mudou e a métrica de negócio caiu.",
+      "Uma nova versão do Databricks Runtime ML foi disponibilizada.",
+      "O experimento MLflow original acumulou muitos runs antigos."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O gatilho de retreino é a degradação: drift nas features de entrada (data drift) ou mudança na relação entre features e alvo (concept drift), confirmada pela queda da métrica de negócio. Volume de tráfego e versão de runtime são questões de infraestrutura, não de qualidade do modelo."
+  },
+  {
+    "id": 204,
+    "modulo": "pyspark",
+    "modulo_nome": "02 - PySpark para ML",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "facil",
+    "pergunta": "Um cientista recebeu um notebook com o Spark DataFrame spark_df, mas só conhece a API do pandas. Qual bloco permite trabalhar com sintaxe pandas sobre esses dados distribuídos?",
+    "alternativas": [
+      "import pyspark.pandas as ps; df = ps.DataFrame(spark_df)",
+      "import pyspark.pandas as ps; df = ps.to_pandas(spark_df)",
+      "import pandas as pd; df = pd.DataFrame(spark_df)",
+      "df = spark_df.to_pandas()"
+    ],
+    "resposta_correta": 0,
+    "explicacao": "O módulo pyspark.pandas expõe uma API quase idêntica à do pandas, mas executando sobre o Spark. ps.DataFrame(spark_df) embrulha o DataFrame distribuído. Já pd.DataFrame(spark_df) ou toPandas() trariam os dados para a memória do driver."
+  },
+  {
+    "id": 205,
+    "modulo": "pyspark",
+    "modulo_nome": "02 - PySpark para ML",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "dificil",
+    "pergunta": "Qual é a relação entre um DataFrame do pandas API on Spark e um Spark DataFrame nativo?",
+    "alternativas": [
+      "O primeiro é uma versão single-node do segundo, materializada no driver.",
+      "O primeiro é composto por um Spark DataFrame mais metadados de índice.",
+      "O primeiro é mais performático porque evita o planejamento do Catalyst.",
+      "Os dois são estruturas independentes, sem relação interna entre si."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O pandas API on Spark (ex-Koalas) é uma camada sobre o Spark DataFrame. Ele mantém metadados extras — principalmente o índice, que o Spark não tem — e traduz as operações pandas em operações Spark. O desempenho é o do Spark, com um pequeno custo de tradução."
+  },
+  {
+    "id": 206,
+    "modulo": "pyspark",
+    "modulo_nome": "02 - PySpark para ML",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "facil",
+    "pergunta": "Um notebook escrito em pandas ficou lento com o crescimento dos dados. Qual refatoração exige o MENOR esforço para escalar?",
+    "alternativas": [
+      "Reescrever tudo com a API de DataFrames do PySpark.",
+      "Trocar o import de pandas pelo pandas API on Spark.",
+      "Reescrever a lógica como consultas em Spark SQL.",
+      "Mover as transformações para tabelas do Feature Store."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O pandas API on Spark foi criado justamente para esse caso: a maior parte do código continua igual, trocando import pandas as pd por import pyspark.pandas as ps. Migrar para a API do PySpark ou para SQL dá mais controle, mas exige reescrever o notebook inteiro."
+  },
+  {
+    "id": 207,
+    "modulo": "pyspark",
+    "modulo_nome": "02 - PySpark para ML",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "facil",
+    "pergunta": "Como criar um DataFrame apenas com as linhas de spark_df em que a coluna price é maior que zero?",
+    "alternativas": [
+      "spark_df.filter(col('price') > 0)",
+      "spark_df.loc[spark_df['price'] > 0, :]",
+      "spark_df.where(price > 0).collect()",
+      "SELECT * FROM spark_df WHERE price > 0"
+    ],
+    "resposta_correta": 0,
+    "explicacao": "filter() (ou seu sinônimo where()) recebe uma expressão de coluna e devolve um novo DataFrame, preservando a lazy evaluation. A sintaxe .loc é do pandas, e SQL puro só funciona via spark.sql() sobre uma view registrada."
+  },
+  {
+    "id": 208,
+    "modulo": "pyspark",
+    "modulo_nome": "02 - PySpark para ML",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "dificil",
+    "pergunta": "Qual é a diferença entre repartition(200) e coalesce(200) em um Spark DataFrame?",
+    "alternativas": [
+      "repartition faz shuffle e ajusta para cima ou para baixo; coalesce só reduz.",
+      "repartition só funciona antes de uma action; coalesce funciona a qualquer momento.",
+      "repartition altera o número de arquivos gravados; coalesce altera o de executores.",
+      "repartition mantém a ordem das linhas; coalesce reordena os dados no cluster."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "repartition() redistribui os dados com shuffle completo, servindo tanto para aumentar quanto para reduzir partições e equilibrando o volume entre elas. coalesce() apenas funde partições existentes, sem shuffle: é mais barato, mas só reduz e pode deixar partições desiguais."
+  },
+  {
+    "id": 209,
+    "modulo": "eda",
+    "modulo_nome": "03 - EDA e Preparação de Dados",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "media",
+    "pergunta": "Qual método é apropriado para comparar uma variável CATEGÓRICA com uma variável CONTÍNUA?",
+    "alternativas": [
+      "Correlação de Pearson entre as duas colunas.",
+      "Boxplot da contínua por categoria, com teste t ou ANOVA.",
+      "Teste qui-quadrado sobre a tabela de contingência.",
+      "Matriz de dispersão com regressão linear ajustada."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Pearson exige duas variáveis contínuas e qui-quadrado, duas categóricas. Para o caso misto, compara-se a distribuição da contínua dentro de cada categoria: visualmente com boxplots, e formalmente com teste t (duas categorias) ou ANOVA (três ou mais)."
+  },
+  {
+    "id": 210,
+    "modulo": "eda",
+    "modulo_nome": "03 - EDA e Preparação de Dados",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "media",
+    "pergunta": "Como remover outliers de uma coluna de um Spark DataFrame usando a regra dos 3 desvios padrão?",
+    "alternativas": [
+      "Calcular média e desvio com agg() e filtrar o intervalo de 3 desvios.",
+      "Aplicar StandardScaler e descartar as linhas com valor absoluto acima de 3.",
+      "Usar approxQuantile() para obter os percentis 0.3 e 99.7 e filtrar por eles.",
+      "Chamar dropOutliers() com o parâmetro stddev igual a 3 no DataFrame."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "Primeiro obtém-se média e desvio padrão em uma passada com agg(mean(...), stddev(...)), depois filtra-se o DataFrame para manter apenas os valores entre média menos 3 desvios e média mais 3 desvios. Não existe um método pronto de remoção de outliers no Spark."
+  },
+  {
+    "id": 211,
+    "modulo": "eda",
+    "modulo_nome": "03 - EDA e Preparação de Dados",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "media",
+    "pergunta": "Um colega alerta que imputar valores faltantes pela mediana descarta informação. Como preservar essa informação?",
+    "alternativas": [
+      "Trocar a imputação pela média, que aproveita todos os valores da coluna.",
+      "Criar uma coluna binária indicando quais linhas tiveram o valor imputado.",
+      "Remover do conjunto todas as features que continham valores faltantes.",
+      "Deixar os nulos como estão e permitir que o algoritmo decida o tratamento."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "A ausência de um valor pode ser em si um sinal preditivo — um cliente que não informou a renda pode se comportar diferente. Imputar e adicionar um indicador binário de 'estava faltando' preserva esse sinal e deixa o modelo decidir se ele importa."
+  },
+  {
+    "id": 212,
+    "modulo": "eda",
+    "modulo_nome": "03 - EDA e Preparação de Dados",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "media",
+    "pergunta": "Qual é o risco de calcular a média de imputação sobre o dataset completo antes de separar treino e teste?",
+    "alternativas": [
+      "Nenhum, porque a média é uma estatística robusta a esse tipo de divisão.",
+      "Informação do conjunto de teste vaza para o treino, inflando a métrica.",
+      "A média fica enviesada porque o conjunto de teste costuma ser menor.",
+      "O Spark precisa materializar o DataFrame inteiro, estourando a memória."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "É data leakage: a média carrega informação das linhas de teste, e o modelo é avaliado com dados que influenciaram seu pré-processamento. A métrica fica otimista e não se sustenta em produção. O correto é ajustar o Imputer só no treino e aplicá-lo ao teste."
+  },
+  {
+    "id": 213,
+    "modulo": "eda",
+    "modulo_nome": "03 - EDA e Preparação de Dados",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "media",
+    "pergunta": "Uma feature categórica tem cerca de 8.000 valores distintos. Qual é o principal problema de aplicar one-hot encoding nela?",
+    "alternativas": [
+      "O Spark ML não permite mais de 1.000 categorias no OneHotEncoder.",
+      "Cria milhares de colunas esparsas, pesando no treino e favorecendo overfitting.",
+      "O one-hot encoding só funciona em features com ordenação natural definida.",
+      "As categorias raras passam a ser tratadas como valores faltantes no treino."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Cada categoria vira uma coluna: alta cardinalidade explode a dimensionalidade, com colunas quase todas zero e pouquíssimos exemplos por categoria. Alternativas comuns são agrupar categorias raras, usar target encoding ou deixar o valor indexado para modelos de árvore."
+  },
+  {
+    "id": 214,
+    "modulo": "eda",
+    "modulo_nome": "03 - EDA e Preparação de Dados",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "media",
+    "pergunta": "Uma coluna tem 40% dos valores faltantes. Qual é a consideração mais importante antes de simplesmente imputá-la?",
+    "alternativas": [
+      "Verificar se a coluna tem variância suficiente para o modelo aprender.",
+      "Avaliar se a ausência tem um padrão e se a coluna vale a pena ser mantida.",
+      "Converter a coluna para string antes de aplicar qualquer imputação.",
+      "Aumentar o número de partições para acelerar o cálculo da estatística."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Com 40% imputado, quase metade da coluna passa a ser um valor inventado, que achata a variância e pode enganar o modelo. Antes de imputar convém entender por que falta (a ausência é aleatória ou informativa?) e considerar descartar a coluna ou usar apenas o indicador de ausência."
+  },
+  {
+    "id": 215,
+    "modulo": "feature_engineering",
+    "modulo_nome": "05 - Feature Engineering",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "media",
+    "pergunta": "Um código cria um Imputer com strategy='median' e chama transform() direto sobre ele, mas a imputação não acontece. Qual é o erro?",
+    "alternativas": [
+      "Os parâmetros inputCols e outputCols precisam ser exatamente iguais.",
+      "Falta chamar fit() para gerar o ImputerModel antes do transform().",
+      "A estratégia median não é suportada pelo Imputer do Spark ML.",
+      "O Imputer precisa ser aplicado separadamente ao treino e ao teste."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O Imputer é um Estimator: ele precisa percorrer os dados para descobrir a mediana de cada coluna. Esse aprendizado acontece no fit(), que devolve um ImputerModel — e é esse modelo que tem o transform(). Chamar transform() no Estimator pula a etapa de cálculo."
+  },
+  {
+    "id": 216,
+    "modulo": "feature_engineering",
+    "modulo_nome": "05 - Feature Engineering",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "dificil",
+    "pergunta": "Qual tarefa de feature engineering é a MENOS eficiente de distribuir em um cluster?",
+    "alternativas": [
+      "Aplicar one-hot encoding em features categóricas.",
+      "Imputar valores faltantes com a mediana exata da coluna.",
+      "Imputar valores faltantes com a média da coluna.",
+      "Criar indicadores binários de valores faltantes."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Média, one-hot e indicadores são calculados com agregações parciais por partição, combinadas no final. A mediana exata exige ordenação global ou conhecer a distribuição inteira, o que força shuffle pesado — por isso o Spark costuma oferecer versões aproximadas por quantis."
+  },
+  {
+    "id": 217,
+    "modulo": "feature_engineering",
+    "modulo_nome": "05 - Feature Engineering",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "media",
+    "pergunta": "Qual ferramenta permite distribuir feature engineering em larga escala sem recorrer a UDFs nem à Pandas Function API?",
+    "alternativas": [
+      "pandas, executado no nó driver do cluster.",
+      "Spark ML, com seus transformers nativos.",
+      "scikit-learn, com o parâmetro n_jobs igual a -1.",
+      "Keras, com a estratégia de distribuição por dados."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Os transformers do Spark ML (StringIndexer, OneHotEncoder, VectorAssembler, Imputer, StandardScaler) já são implementados de forma distribuída e executam dentro do motor do Spark. UDFs e pandas Function API só entram quando a transformação não existe nativamente."
+  },
+  {
+    "id": 218,
+    "modulo": "feature_engineering",
+    "modulo_nome": "05 - Feature Engineering",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "dificil",
+    "pergunta": "Um colega sugere passar apenas o modelo como estimator do CrossValidator e colocar o objeto de CV como último estágio do Pipeline. Qual é a consequência negativa?",
+    "alternativas": [
+      "O treino de cada combinação de hiperparâmetros fica mais lento.",
+      "As etapas de feature engineering passam a ser ajustadas com dados de validação.",
+      "O processo de validação cruzada deixa de ser reproduzível entre execuções.",
+      "O modelo passa a ser reajustado uma vez a mais em cada fold da validação."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Com o CV dentro do Pipeline, os transformers anteriores são ajustados uma única vez sobre todos os dados antes de a validação cruzada dividir os folds. As estatísticas do scaler e do imputer já viram o fold de validação: há leakage, e a métrica sai otimista."
+  },
+  {
+    "id": 219,
+    "modulo": "feature_engineering",
+    "modulo_nome": "05 - Feature Engineering",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "media",
+    "pergunta": "E qual é a desvantagem de fazer o contrário, passando o Pipeline inteiro como estimator do CrossValidator?",
+    "alternativas": [
+      "A métrica de validação fica pessimista por causa do reajuste dos estágios.",
+      "O tempo de execução cresce, pois todos os estágios são reajustados por fold.",
+      "O Pipeline deixa de aceitar uma ParamGridBuilder com múltiplos estágios.",
+      "Os transformers do Pipeline passam a ser ignorados durante a avaliação."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "É o preço correto a pagar: como cada fold reajusta todos os estágios, o custo computacional sobe. Em compensação, o pré-processamento nunca vê os dados de validação e a métrica é honesta. Quando o custo pesa, isola-se apenas o que realmente aprende com os dados."
+  },
+  {
+    "id": 220,
+    "modulo": "feature_engineering",
+    "modulo_nome": "05 - Feature Engineering",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "media",
+    "pergunta": "Após aplicar StringIndexer no rótulo e treinar um classificador, as predições saem como números. Qual componente devolve os rótulos originais de texto?",
+    "alternativas": [
+      "StringIndexer com o parâmetro inverted igual a True.",
+      "IndexToString, mapeando os índices de volta para os rótulos.",
+      "VectorAssembler, reconstruindo a coluna original de rótulos.",
+      "OneHotEncoder, expandindo o índice na categoria correspondente."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O IndexToString faz o caminho inverso do StringIndexer: recebe a coluna de índices previstos e devolve os rótulos de texto, usando os labels aprendidos. É o último estágio típico de um pipeline de classificação cujo alvo era categórico."
+  },
+  {
+    "id": 221,
+    "modulo": "treinamento",
+    "modulo_nome": "06 - Treinamento e Avaliação",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "facil",
+    "pergunta": "Um cientista tem dois modelos: um funciona bem quando certa feature é menor que 5, o outro quando ela é maior ou igual a 5. Ele decide combinar os dois em uma solução única. Como se chama essa combinação?",
+    "alternativas": [
+      "Bootstrap aggregation",
+      "Ensemble learning",
+      "Support vector machine",
+      "Bucketing"
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Ensemble learning é o termo geral para combinar vários modelos em uma solução única, aproveitando os pontos fortes de cada um. Bagging e boosting são estratégias específicas de ensemble; bucketing é discretização de variável contínua, e SVM é um algoritmo isolado."
+  },
+  {
+    "id": 222,
+    "modulo": "treinamento",
+    "modulo_nome": "06 - Treinamento e Avaliação",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "dificil",
+    "pergunta": "Uma solução com três modelos substitui uma que usava um só. Todos têm latência individual parecida. Em qual situação a nova solução será menos eficiente na inferência?",
+    "alternativas": [
+      "Quando uma lógica condicional escolher qual modelo usa cada registro.",
+      "Quando todos os três modelos precisarem prever para cada registro.",
+      "Quando a nova solução usar menos variáveis de entrada que a original.",
+      "Quando os modelos novos ocuparem mais espaço em disco que o original."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Se uma condição decide qual modelo atende cada registro, roda-se um modelo por registro e a latência é comparável. Se os três precisam prever para todo registro e depois as saídas são combinadas, o custo por predição triplica. Tamanho em disco não é o que domina a latência."
+  },
+  {
+    "id": 223,
+    "modulo": "treinamento",
+    "modulo_nome": "06 - Treinamento e Avaliação",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "facil",
+    "pergunta": "Qual algoritmo de machine learning é construído sobre bagging (bootstrap aggregating)?",
+    "alternativas": [
+      "Gradient boosted trees",
+      "Random forest",
+      "K-means",
+      "Regressão linear"
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O random forest treina muitas árvores em amostras bootstrap dos dados, com subconjuntos aleatórios de features, e agrega as predições por voto ou média. Isso reduz a variância. O gradient boosting é sequencial, cada árvore corrigindo o erro da anterior."
+  },
+  {
+    "id": 224,
+    "modulo": "treinamento",
+    "modulo_nome": "06 - Treinamento e Avaliação",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "media",
+    "pergunta": "Por que é difícil paralelizar o treino das árvores de um modelo de gradient boosting?",
+    "alternativas": [
+      "Porque o algoritmo precisa de todos os dados em memória em um único nó.",
+      "Porque cada árvore é treinada sobre os resíduos deixados pela anterior.",
+      "Porque o cálculo do gradiente ocupa todos os núcleos disponíveis no nó.",
+      "Porque o boosting não é baseado em álgebra linear, exigida para distribuir."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O boosting é sequencial por definição: a árvore n só pode ser treinada depois que a n-1 produziu suas predições e seus resíduos. Não dá para treinar as árvores em paralelo — o que se paraleliza é a busca de splits dentro de cada árvore. No random forest, as árvores são independentes."
+  },
+  {
+    "id": 225,
+    "modulo": "treinamento",
+    "modulo_nome": "06 - Treinamento e Avaliação",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "dificil",
+    "pergunta": "Uma decision tree do Spark ML e outra do scikit-learn, com os mesmos dados e hiperparâmetros, produzem resultados diferentes. Qual é a explicação?",
+    "alternativas": [
+      "O Spark ML testa candidatos de split binados, e não todos os valores.",
+      "O Spark ML poda automaticamente as árvores que apresentam overfitting.",
+      "O Spark ML testa um subconjunto aleatório de features em cada split.",
+      "O Spark ML avalia mais candidatos de split que a implementação single-node."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "Para distribuir o treino, o Spark ML discretiza as features contínuas em no máximo maxBins faixas e só testa os limites dessas faixas como candidatos a split. O scikit-learn avalia todos os valores observados. Com candidatos diferentes, as árvores divergem."
+  },
+  {
+    "id": 226,
+    "modulo": "treinamento",
+    "modulo_nome": "06 - Treinamento e Avaliação",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "dificil",
+    "pergunta": "A regressão linear do Spark ML tenta primeiro resolver o problema por decomposição matricial, o que não escala com muitas variáveis. Qual abordagem ele usa para distribuir o treino em dados grandes?",
+    "alternativas": [
+      "Decomposição em valores singulares aplicada por partição.",
+      "Otimização iterativa, com algoritmos como L-BFGS e gradiente descendente.",
+      "Método dos mínimos quadrados aplicado a amostras de cada executor.",
+      "Regressão logística sobre os resíduos da solução analítica inicial."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Quando o número de features cresce, a solução fechada fica inviável e o Spark ML passa para otimização iterativa: cada iteração calcula gradientes parciais nas partições, agrega e atualiza os coeficientes. É isso que permite distribuir o treino pelo cluster."
+  },
+  {
+    "id": 227,
+    "modulo": "treinamento",
+    "modulo_nome": "06 - Treinamento e Avaliação",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "facil",
+    "pergunta": "Em uma validação cruzada de 3 folds para um problema de regressão, os RMSE das validações foram 10.0, 12.0 e 17.0. Qual é o RMSE global da validação cruzada?",
+    "alternativas": [
+      "13.0",
+      "17.0",
+      "39.0",
+      "10.0"
+    ],
+    "resposta_correta": 0,
+    "explicacao": "O RMSE da validação cruzada é a média dos RMSE dos folds: (10 + 12 + 17) / 3 = 13.0. Reportar apenas o melhor fold superestima o modelo, e somar os valores não produz nenhuma métrica com significado."
+  },
+  {
+    "id": 228,
+    "modulo": "treinamento",
+    "modulo_nome": "06 - Treinamento e Avaliação",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "dificil",
+    "pergunta": "Um modelo de regressão foi treinado usando log(price) como alvo. Como obter um RMSE comparável à escala original de price?",
+    "alternativas": [
+      "Aplicar log às predições antes de calcular o RMSE.",
+      "Exponenciar as predições antes de calcular o RMSE.",
+      "Exponenciar o valor de RMSE já calculado sobre a escala logarítmica.",
+      "Calcular o MSE sobre as predições em log e tirar a raiz do resultado."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O RMSE herda a unidade do alvo. Calculado sobre log(price), ele está em unidades de log e não se compara a reais. É preciso reverter a transformação nas predições (e usar os valores reais de price) antes de avaliar. Exponenciar o RMSE pronto não funciona, porque a transformação não é linear."
+  },
+  {
+    "id": 229,
+    "modulo": "treinamento",
+    "modulo_nome": "06 - Treinamento e Avaliação",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "dificil",
+    "pergunta": "Uma pipeline com entrada estática passou a produzir conjuntos de treino com número de linhas diferente após o aumento de workers do cluster. Como garantir splits reprodutíveis entre execuções?",
+    "alternativas": [
+      "Configurar manualmente o número de nós do cluster antes de cada execução.",
+      "Gravar os conjuntos já divididos em armazenamento persistente e relê-los.",
+      "Particionar manualmente os dados de entrada antes de aplicar o split.",
+      "Definir um valor de velocidade na operação de divisão dos dados."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O randomSplit sorteia por partição: mudando o paralelismo, muda o particionamento e o resultado do sorteio, mesmo com a mesma seed. A forma robusta é dividir uma vez, gravar treino e teste em tabelas Delta e sempre ler desses caminhos."
+  },
+  {
+    "id": 230,
+    "modulo": "treinamento",
+    "modulo_nome": "06 - Treinamento e Avaliação",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "media",
+    "pergunta": "Um classificador binário obteve AUC de 0.50 no conjunto de teste. O que isso indica?",
+    "alternativas": [
+      "O modelo acerta metade das previsões, o que é aceitável em dados difíceis.",
+      "O modelo não consegue separar as classes melhor que o acaso.",
+      "O modelo está com overfitting severo no conjunto de treino.",
+      "O limiar de decisão está mal calibrado e precisa de ajuste."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "AUC é a probabilidade de o modelo dar score maior a um positivo do que a um negativo escolhidos ao acaso. Em 0.50 essa probabilidade é a de um sorteio: não há poder discriminativo. Ajustar o limiar não ajuda, porque o problema está no ordenamento dos scores."
+  },
+  {
+    "id": 231,
+    "modulo": "treinamento",
+    "modulo_nome": "06 - Treinamento e Avaliação",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "media",
+    "pergunta": "Em qual situação a validação cruzada é claramente preferível a um único split de treino e validação?",
+    "alternativas": [
+      "Quando o dataset é pequeno e um único split daria estimativa instável.",
+      "Quando o dataset é muito grande e o treino já leva horas para rodar.",
+      "Quando as features precisam ser padronizadas antes do treino do modelo.",
+      "Quando o problema é de regressão em vez de classificação binária."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "Com poucos dados, a métrica de um único split varia muito conforme as linhas que caíram na validação. A validação cruzada usa cada linha para validar uma vez e dá uma estimativa mais estável. Em datasets grandes, o custo extra de k treinos raramente compensa."
+  },
+  {
+    "id": 232,
+    "modulo": "hyperopt",
+    "modulo_nome": "07 - Tuning de Hiperparâmetros",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "dificil",
+    "pergunta": "Oito avaliações de hiperparâmetros rodam simultaneamente em oito nós. A acurácia varia entre elas, mas não melhora ao longo do processo. O que mudar?",
+    "alternativas": [
+      "Reduzir o paralelismo para metade ou menos do total de avaliações.",
+      "Aumentar o número de nós e de avaliações mantendo-os iguais entre si.",
+      "Dobrar o número de nós em relação ao número total de avaliações.",
+      "Aumentar o número de folds da validação cruzada de cada avaliação."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "Algoritmos adaptativos como o TPE escolhem a próxima combinação a partir dos resultados já observados. Com paralelismo igual ao número de avaliações, todas partem sem histórico e a busca vira aleatória. Reduzir o paralelismo cria rodadas sucessivas e devolve a adaptatividade."
+  },
+  {
+    "id": 233,
+    "modulo": "hyperopt",
+    "modulo_nome": "07 - Tuning de Hiperparâmetros",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "media",
+    "pergunta": "Uma busca em grade combina um hiperparâmetro com 3 valores e outro com 2, avaliados por validação cruzada de 3 folds. Quantos modelos podem ser treinados EM PARALELO?",
+    "alternativas": [
+      "3",
+      "6",
+      "9",
+      "18"
+    ],
+    "resposta_correta": 1,
+    "explicacao": "São 3 x 2 = 6 combinações de hiperparâmetros, e é esse o grau de paralelismo do CrossValidator: cada combinação é avaliada nos 3 folds, totalizando 18 treinos. Confundir o total de treinos com o paralelismo é o erro clássico dessa questão."
+  },
+  {
+    "id": 234,
+    "modulo": "hyperopt",
+    "modulo_nome": "07 - Tuning de Hiperparâmetros",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "media",
+    "pergunta": "No scikit-learn, você quer sortear valores dentro do espaço de busca em vez de testar todas as combinações de uma grade. O que usar?",
+    "alternativas": [
+      "Substituir GridSearchCV por RandomizedSearchCV.",
+      "Substituir GridSearchCV por cross_validate.",
+      "Substituir GridSearchCV por ParameterGrid.",
+      "Passar shuffle=True para o GridSearchCV existente."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "O RandomizedSearchCV sorteia n_iter combinações a partir de distribuições ou listas informadas, dando controle direto sobre o orçamento de busca. O GridSearchCV é exaustivo; ParameterGrid só enumera combinações, sem treinar; e cross_validate avalia um conjunto fixo de parâmetros."
+  },
+  {
+    "id": 235,
+    "modulo": "hyperopt",
+    "modulo_nome": "07 - Tuning de Hiperparâmetros",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "media",
+    "pergunta": "Você vai tunar um modelo do Spark ML, que já distribui o próprio treino. Qual classe de Trials usar no Hyperopt?",
+    "alternativas": [
+      "SparkTrials, para aproveitar todos os núcleos do cluster.",
+      "Trials, porque o paralelismo já está dentro do treino do modelo.",
+      "SparkTrials com parallelism igual ao número de executores.",
+      "Qualquer uma das duas: o Hyperopt escolhe automaticamente."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "SparkTrials distribui uma avaliação por executor e pressupõe que cada treino caiba em um nó — é para modelos single-node como scikit-learn. Um modelo Spark ML já usa o cluster inteiro em cada fit, então empilhar as duas camadas de paralelismo gera conflito por recursos. Nesse caso, Trials()."
+  },
+  {
+    "id": 236,
+    "modulo": "revisao",
+    "modulo_nome": "12 - Revisão Final",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "media",
+    "pergunta": "Um modelo de detecção de fraude atinge 99% de acurácia em uma base com 1% de fraudes. O que isso provavelmente indica?",
+    "alternativas": [
+      "Que o modelo aprendeu bem os padrões de fraude presentes na base.",
+      "Que prever sempre a classe majoritária já produziria esse número.",
+      "Que o conjunto de teste ficou pequeno demais para ser confiável.",
+      "Que houve vazamento das features do conjunto de teste no treino."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Com 1% de positivos, um modelo que responde 'não é fraude' para tudo acerta 99% e não detecta uma única fraude. Acurácia é enganosa em bases desbalanceadas: o diagnóstico exige recall, precision, F1 ou a área sob a curva precision-recall."
+  },
+  {
+    "id": 237,
+    "modulo": "revisao",
+    "modulo_nome": "12 - Revisão Final",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "media",
+    "pergunta": "Quais etapas precisam ficar DENTRO do pipeline avaliado pela validação cruzada para evitar data leakage?",
+    "alternativas": [
+      "Apenas o treino do modelo, já que as transformações não aprendem nada.",
+      "Toda transformação que aprende estatísticas dos dados, como scaler e imputer.",
+      "Apenas a seleção de features, que é a etapa sensível ao conjunto de teste.",
+      "Nenhuma: transformações devem ser aplicadas antes, para acelerar o processo."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Qualquer etapa com fit aprende algo dos dados: média e desvio do StandardScaler, mediana do Imputer, vocabulário do StringIndexer, componentes do PCA. Se isso é calculado antes da divisão dos folds, o fold de validação influencia o pré-processamento e a métrica fica otimista."
+  },
+  {
+    "id": 238,
+    "modulo": "deployment",
+    "modulo_nome": "10 - Deployment e Serving",
+    "secao": 4,
+    "secao_nome": "Model Deployment",
+    "dificuldade": "media",
+    "pergunta": "Uma função apply_model carrega o modelo correto de cada grupo e gera as predições. Como aplicá-la a cada grupo do DataFrame df com a Pandas Function API?",
+    "alternativas": [
+      "df.groupBy('device_id').applyInPandas(apply_model, schema=retorno)",
+      "df.groupBy('device_id').mapInPandas(apply_model, schema=retorno)",
+      "df.groupBy('device_id').predict(apply_model, schema=retorno)",
+      "df.groupBy('device_id').groupedApplyInPandas(apply_model, schema=retorno)"
+    ],
+    "resposta_correta": 0,
+    "explicacao": "applyInPandas é o método de GroupedData: recebe cada grupo inteiro como um DataFrame pandas, aplica a função e devolve um DataFrame Spark com o schema declarado. É o padrão para treinar ou aplicar um modelo por grupo, distribuindo os grupos pelo cluster."
+  },
+  {
+    "id": 239,
+    "modulo": "deployment",
+    "modulo_nome": "10 - Deployment e Serving",
+    "secao": 4,
+    "secao_nome": "Model Deployment",
+    "dificuldade": "media",
+    "pergunta": "Qual é a diferença entre applyInPandas e mapInPandas no PySpark?",
+    "alternativas": [
+      "applyInPandas opera por grupo após groupBy; mapInPandas, por partição.",
+      "applyInPandas devolve um valor por linha; mapInPandas, um valor por grupo.",
+      "applyInPandas roda no driver; mapInPandas roda distribuído nos executores.",
+      "applyInPandas exige schema declarado; mapInPandas o infere dos dados."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "applyInPandas é chamado sobre um GroupedData e entrega à função o grupo inteiro como um DataFrame pandas. mapInPandas é chamado sobre o DataFrame e entrega um iterador de blocos de cada partição, sem agrupamento. Ambos rodam nos executores e exigem schema de retorno."
+  },
+  {
+    "id": 240,
+    "modulo": "deployment",
+    "modulo_nome": "10 - Deployment e Serving",
+    "secao": 4,
+    "secao_nome": "Model Deployment",
+    "dificuldade": "media",
+    "pergunta": "Uma Pandas UDF chamada predict recebe um iterador de DataFrames pandas e devolve as predições. Qual chamada a aplica a todas as linhas de spark_df?",
+    "alternativas": [
+      "spark_df.mapInPandas(predict, schema=retorno)",
+      "spark_df.predict(*spark_df.columns)",
+      "spark_df.applyInPandas(predict, schema=retorno)",
+      "spark_df.select(predict(spark_df.columns))"
+    ],
+    "resposta_correta": 0,
+    "explicacao": "Para uma UDF do tipo iterador, mapInPandas percorre cada partição em blocos e repassa o iterador à função. A vantagem é carregar o modelo uma vez por partição, e não uma vez por bloco. applyInPandas exigiria um groupBy antes."
+  },
+  {
+    "id": 241,
+    "modulo": "deployment",
+    "modulo_nome": "10 - Deployment e Serving",
+    "secao": 4,
+    "secao_nome": "Model Deployment",
+    "dificuldade": "media",
+    "pergunta": "Por que as dependências precisam estar declaradas junto com o modelo logado no MLflow?",
+    "alternativas": [
+      "Porque o endpoint recria o ambiente a partir do que foi registrado no modelo.",
+      "Porque o MLflow valida as versões contra uma lista de pacotes aprovados.",
+      "Porque o registry recusa modelos sem um arquivo de requirements válido.",
+      "Porque o cluster de treino precisa reinstalar os pacotes a cada execução."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "O log_model grava requirements.txt e conda.yaml com as versões usadas no treino. Ao servir, o Databricks constrói um ambiente a partir desses arquivos. Se a versão da biblioteca divergir da do treino, o modelo pode até carregar, mas produzir predições diferentes."
+  },
+  {
+    "id": 242,
+    "modulo": "deployment",
+    "modulo_nome": "10 - Deployment e Serving",
+    "secao": 4,
+    "secao_nome": "Model Deployment",
+    "dificuldade": "dificil",
+    "pergunta": "Qual é a vantagem de pontuar um DataFrame grande com mlflow.pyfunc.spark_udf() em vez de chamar toPandas() e prever no driver?",
+    "alternativas": [
+      "A inferência roda distribuída nos executores, sem concentrar dados no driver.",
+      "O spark_udf aplica automaticamente as transformações do Feature Store.",
+      "O spark_udf converte o modelo para Spark ML, acelerando a inferência.",
+      "O spark_udf grava o resultado direto em Delta, dispensando o write."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "toPandas() traz todas as linhas para a memória do driver e estoura em bases grandes. O spark_udf embrulha o modelo em uma UDF vetorizada: cada executor carrega o modelo uma vez e pontua sua fatia dos dados, e a escala passa a ser a do cluster."
+  },
+  {
+    "id": 243,
+    "modulo": "deployment",
+    "modulo_nome": "10 - Deployment e Serving",
+    "secao": 4,
+    "secao_nome": "Model Deployment",
+    "dificuldade": "facil",
+    "pergunta": "O que o Databricks Model Serving faz automaticamente quando o volume de requisições aumenta?",
+    "alternativas": [
+      "Reduz a precisão numérica do modelo para atender mais requisições.",
+      "Escala a capacidade do endpoint dentro da faixa configurada.",
+      "Enfileira as requisições excedentes até o próximo ciclo de processamento.",
+      "Redireciona o excedente para a inferência em batch mais próxima."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O endpoint tem uma faixa de capacidade configurável e escala dentro dela conforme a carga, subindo e descendo sozinho. Com scale to zero habilitado, ele chega a desligar sem tráfego, ao custo de cold start na primeira requisição seguinte."
+  },
+  {
+    "id": 244,
+    "modulo": "deployment",
+    "modulo_nome": "10 - Deployment e Serving",
+    "secao": 4,
+    "secao_nome": "Model Deployment",
+    "dificuldade": "media",
+    "pergunta": "Um sistema precisa pontuar eventos que chegam continuamente, com latência de segundos, sem expor um endpoint REST para aplicações externas. Qual abordagem atende?",
+    "alternativas": [
+      "Batch inference agendado para rodar a cada minuto sobre a tabela de eventos.",
+      "Structured Streaming aplicando o modelo como UDF sobre o fluxo de eventos.",
+      "Um endpoint de model serving consultado por um job agendado periodicamente.",
+      "Uma tabela Delta com gatilho que dispara o modelo a cada linha inserida."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Quando o consumidor é a própria pipeline de dados e não uma aplicação externa, a inferência em streaming é o encaixe natural: o modelo vira uma UDF aplicada ao fluxo, e o resultado é gravado em Delta. Não há endpoint para manter nem custo de rede por requisição."
+  },
+  {
+    "id": 245,
+    "modulo": "deployment",
+    "modulo_nome": "10 - Deployment e Serving",
+    "secao": 4,
+    "secao_nome": "Model Deployment",
+    "dificuldade": "media",
+    "pergunta": "O que é necessário para consultar um endpoint de serving do Databricks a partir de uma aplicação externa? (Selecione DUAS)",
+    "alternativas": [
+      "A URL de invocação do endpoint.",
+      "Um token de autenticação válido no cabeçalho da requisição.",
+      "O run_id do MLflow que originou a versão servida.",
+      "Uma conexão JDBC ativa com o workspace do Databricks."
+    ],
+    "resposta_correta": [
+      0,
+      1
+    ],
+    "explicacao": "A chamada é um POST HTTP para a URL de invocação do endpoint, com um token pessoal ou de service principal no cabeçalho Authorization e o payload JSON no corpo. O run_id é rastreabilidade interna, e JDBC serve para consultas SQL, não para serving."
+  },
+  {
+    "id": 246,
+    "modulo": "deployment",
+    "modulo_nome": "10 - Deployment e Serving",
+    "secao": 4,
+    "secao_nome": "Model Deployment",
+    "dificuldade": "media",
+    "pergunta": "Qual é a vantagem de servir um modelo por um endpoint em vez de embutir o artefato dentro do código da aplicação?",
+    "alternativas": [
+      "A latência por predição é sempre menor do que carregar o modelo local.",
+      "Trocar a versão do modelo deixa de exigir um novo deploy da aplicação.",
+      "O modelo passa a ser retreinado automaticamente a cada nova versão.",
+      "A aplicação deixa de precisar tratar erros vindos da camada de inferência."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Com o endpoint, o modelo tem ciclo de vida próprio: promover uma nova versão, dividir tráfego ou fazer rollback não toca no código da aplicação. Em compensação entra uma chamada de rede, então a latência tende a ser maior que a de um modelo carregado em memória."
+  },
+  {
+    "id": 247,
+    "modulo": "deployment",
+    "modulo_nome": "10 - Deployment e Serving",
+    "secao": 4,
+    "secao_nome": "Model Deployment",
+    "dificuldade": "dificil",
+    "pergunta": "Um modelo customizado em pyfunc precisa de um arquivo de vocabulário para pré-processar o texto de entrada. Como garantir que ele esteja disponível no endpoint?",
+    "alternativas": [
+      "Ler o arquivo de um caminho do DBFS dentro do método predict().",
+      "Passá-lo em artifacts no log_model e carregá-lo no load_context().",
+      "Incluí-lo na lista de dependências do arquivo requirements.txt do modelo.",
+      "Anexá-lo ao endpoint como uma biblioteca instalada no momento do deploy."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O parâmetro artifacts do log_model empacota arquivos auxiliares junto do modelo. Na inicialização, o load_context() recebe esses caminhos já resolvidos e carrega o vocabulário uma única vez. Depender de um caminho externo quebra o endpoint, que pode não ter acesso a ele."
+  },
+  {
+    "id": 248,
+    "modulo": "mlflow",
+    "modulo_nome": "04 - MLflow",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Você quer registrar uma nova versão de um modelo no Unity Catalog a partir de um run, usando a MLflow Client API. Qual chamada faz isso?",
+    "alternativas": [
+      "client.create_model_version(name='cat.sch.churn', source=f'runs:/{run_id}/model', run_id=run_id)",
+      "client.register_model(name='cat.sch.churn', run_id=run_id, artifact_path='model')",
+      "client.create_registered_model(name='cat.sch.churn', source=f'runs:/{run_id}/model')",
+      "client.log_model(name='cat.sch.churn', run_id=run_id, stage='Production')"
+    ],
+    "resposta_correta": 0,
+    "explicacao": "create_registered_model() cria o modelo registrado (o contêiner, uma única vez) e create_model_version() cria cada versão, apontando para o artefato do run pela source. A função de conveniência mlflow.register_model() faz as duas coisas de uma vez; pela Client API elas são separadas."
+  },
+  {
+    "id": 249,
+    "modulo": "mlflow",
+    "modulo_nome": "04 - MLflow",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "facil",
+    "pergunta": "Como marcar a versão 3 de um modelo registrado com a tag 'aprovado_em' igual a '2026-03-01'?",
+    "alternativas": [
+      "client.set_model_version_tag(name=MODEL, version=3, key='aprovado_em', value='2026-03-01')",
+      "client.set_tag(name=MODEL, version=3, key='aprovado_em', value='2026-03-01')",
+      "client.update_model_version(name=MODEL, version=3, tags={'aprovado_em': '2026-03-01'})",
+      "client.add_model_tag(name=MODEL, version=3, key='aprovado_em', value='2026-03-01')"
+    ],
+    "resposta_correta": 0,
+    "explicacao": "As tags existem em três escopos e cada um tem seu par de métodos: set_tag/delete_tag para runs, set_registered_model_tag para o modelo inteiro e set_model_version_tag/delete_model_version_tag para uma versão específica. update_model_version só altera a descrição."
+  },
+  {
+    "id": 250,
+    "modulo": "mlflow",
+    "modulo_nome": "04 - MLflow",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Na MLflow UI, onde você descobre qual notebook ou commit de código originou um determinado run?",
+    "alternativas": [
+      "Na aba de artefatos, dentro do arquivo MLmodel gerado no run.",
+      "Nas tags do run, que guardam a origem e o commit do código-fonte.",
+      "Na aba de métricas, no campo de descrição de cada métrica logada.",
+      "Não é possível: o MLflow não registra a origem do código do run."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O Databricks preenche automaticamente tags de sistema como mlflow.source.name (o notebook ou arquivo), mlflow.source.type e, em Repos com Git, mlflow.source.git.commit. É por essas tags que se reconstrói exatamente o código que produziu um run — parte central da reprodutibilidade."
+  },
+  {
+    "id": 251,
+    "modulo": "feature_store",
+    "modulo_nome": "09 - Feature Store",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Qual é a sequência correta para treinar um modelo com features vindas de uma feature table?",
+    "alternativas": [
+      "Ler a feature table com spark.read, fazer o join manualmente e treinar com o DataFrame resultante.",
+      "Definir FeatureLookups, chamar fe.create_training_set(), obter o DataFrame com load_df() e treinar.",
+      "Chamar fe.train_model() passando o nome da tabela e o algoritmo desejado.",
+      "Publicar a feature table no online store e consultá-la linha a linha durante o treino."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O fluxo é: FeatureLookup declara o que buscar e por qual chave, fe.create_training_set() monta o conjunto (juntando labels e features e registrando a linhagem), load_df() devolve o DataFrame para o treino, e fe.log_model() grava o vínculo junto do modelo. O join manual funciona, mas perde a linhagem e o score_batch automático."
+  },
+  {
+    "id": 252,
+    "modulo": "feature_store",
+    "modulo_nome": "09 - Feature Store",
+    "secao": 1,
+    "secao_nome": "Databricks Machine Learning",
+    "dificuldade": "media",
+    "pergunta": "Qual chamada grava um DataFrame em uma feature table já existente, atualizando as linhas cuja chave primária já está lá?",
+    "alternativas": [
+      "fe.write_table(name='cat.sch.tbl', df=novo_df, mode='merge')",
+      "fe.write_table(name='cat.sch.tbl', df=novo_df, mode='upsert')",
+      "novo_df.write.format('feature_store').mode('merge').saveAsTable('cat.sch.tbl')",
+      "fe.update_table(name='cat.sch.tbl', df=novo_df)"
+    ],
+    "resposta_correta": 0,
+    "explicacao": "fe.write_table() aceita dois modos: 'merge' (o padrão do dia a dia) casa pela chave primária, atualizando o que existe e inserindo o que é novo; 'overwrite' substitui a tabela inteira. Não existe modo 'upsert' nem método update_table, e escrever pela API Spark comum ignoraria os metadados da feature table."
+  },
+  {
+    "id": 253,
+    "modulo": "eda",
+    "modulo_nome": "03 - EDA e Preparação de Dados",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "facil",
+    "pergunta": "Qual visualização é a mais apropriada para inspecionar a distribuição de uma variável CATEGÓRICA?",
+    "alternativas": [
+      "Histograma das frequências acumuladas.",
+      "Gráfico de barras com a contagem de cada categoria.",
+      "Boxplot com os quartis de cada categoria.",
+      "Scatter plot das categorias contra o índice da linha."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Categóricas se descrevem por contagem: o gráfico de barras mostra a frequência de cada categoria e revela de imediato desbalanceamento e categorias raras. Histograma e boxplot pressupõem uma variável contínua, e o scatter plot precisa de dois eixos numéricos."
+  },
+  {
+    "id": 254,
+    "modulo": "eda",
+    "modulo_nome": "03 - EDA e Preparação de Dados",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "media",
+    "pergunta": "Como remover outliers de uma coluna de um Spark DataFrame usando a regra do IQR?",
+    "alternativas": [
+      "Obter Q1 e Q3 com approxQuantile e filtrar fora de [Q1 - 1.5xIQR, Q3 + 1.5xIQR].",
+      "Aplicar df.summary() e descartar as linhas listadas na saída como extremas.",
+      "Usar QuantileDiscretizer com 4 buckets e remover o primeiro e o último.",
+      "Chamar df.dropOutliers(coluna, method='iqr') com o limiar padrão."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "approxQuantile(coluna, [0.25, 0.75], erro) devolve Q1 e Q3 de forma distribuída; daí sai IQR = Q3 - Q1 e os limites de 1.5xIQR, usados em um filter. summary() apenas descreve, QuantileDiscretizer discretiza em vez de remover, e não existe dropOutliers no Spark."
+  },
+  {
+    "id": 255,
+    "modulo": "eda",
+    "modulo_nome": "03 - EDA e Preparação de Dados",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "media",
+    "pergunta": "Um modelo de preço foi treinado com o target transformado por log. O que é preciso fazer antes de mostrar a previsão ao usuário final?",
+    "alternativas": [
+      "Nada: a previsão já sai na unidade original do preço.",
+      "Exponenciar a previsão, revertendo a transformação aplicada no treino.",
+      "Multiplicar a previsão pelo desvio padrão do target de treino.",
+      "Aplicar log novamente, para cancelar a transformação anterior."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O modelo aprendeu a prever log(preco), então sua saída está em escala logarítmica. Para entregar um valor em reais é preciso reverter: exp() se o treino usou log(), expm1() se usou log1p(). Esquecer esse passo devolve números pequenos e sem sentido para o negócio."
+  },
+  {
+    "id": 256,
+    "modulo": "hyperopt",
+    "modulo_nome": "07 - Tuning de Hiperparâmetros",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "media",
+    "pergunta": "O exam guide ainda cobra o fmin do Hyperopt, mas o que a Databricks recomenda hoje para tuning de hiperparâmetros em runtimes recentes?",
+    "alternativas": [
+      "Continuar com o Hyperopt, que segue mantido e incluído no Runtime ML.",
+      "Optuna para modelos de nó único e Ray Tune para tuning distribuído.",
+      "Apenas o CrossValidator do Spark ML, que substituiu as duas bibliotecas.",
+      "Apenas o AutoML, que passou a ser a única forma suportada de tuning."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O Hyperopt deixou de ser mantido e não vem mais no Databricks Runtime ML depois do 16.4 LTS: a recomendação atual é Optuna para modelos single-node e Ray Tune para distribuir. Ainda assim, os conceitos do fmin (função objetivo minimizada, espaço de busca, TPE) continuam no exam guide e caem na prova."
+  },
+  {
+    "id": 257,
+    "modulo": "treinamento",
+    "modulo_nome": "06 - Treinamento e Avaliação",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "media",
+    "pergunta": "Em um classificador binário, qual é o efeito de baixar o threshold de decisão de 0.5 para 0.3?",
+    "alternativas": [
+      "Aumenta o recall e tende a reduzir a precision.",
+      "Aumenta a precision e tende a reduzir o recall.",
+      "Aumenta as duas, porque o modelo passa a acertar mais casos.",
+      "Não altera nenhuma das duas: o threshold só afeta a acurácia."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "Com um threshold menor, mais casos são classificados como positivos: capturam-se mais positivos verdadeiros (recall sobe) ao custo de mais falsos positivos (precision cai). Ajustar o threshold é uma das formas mais baratas de lidar com desbalanceamento, sem tocar no treino."
+  },
+  {
+    "id": 258,
+    "modulo": "treinamento",
+    "modulo_nome": "06 - Treinamento e Avaliação",
+    "secao": 3,
+    "secao_nome": "Model Development",
+    "dificuldade": "dificil",
+    "pergunta": "Em qual situação a curva precision-recall é mais informativa que a curva ROC?",
+    "alternativas": [
+      "Quando as classes estão muito desbalanceadas e a classe positiva é rara.",
+      "Quando o modelo é de regressão e não produz probabilidades de classe.",
+      "Quando há mais de duas classes no target a ser previsto.",
+      "Quando as duas classes têm exatamente a mesma quantidade de exemplos."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "A ROC usa a taxa de falsos positivos, que tem no denominador todos os negativos reais. Com negativos em massa, muitos falsos positivos quase não movem esse valor e a AUC-ROC fica otimista. A curva precision-recall ignora os verdadeiros negativos e expõe o custo real dos falsos alarmes sobre a classe rara."
+  },
+  {
+    "id": 259,
+    "modulo": "deployment",
+    "modulo_nome": "10 - Deployment e Serving",
+    "secao": 4,
+    "secao_nome": "Model Deployment",
+    "dificuldade": "dificil",
+    "pergunta": "Você configurou um endpoint com duas served entities e traffic_percentage 80 e 30. O que acontece?",
+    "alternativas": [
+      "O Databricks normaliza os valores automaticamente para a proporção equivalente.",
+      "A configuração é rejeitada: os percentuais precisam somar exatamente 100.",
+      "O excedente de 10% é descartado e as requisições correspondentes falham.",
+      "A entidade com maior percentual passa a receber todo o tráfego do endpoint."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O traffic_config de um endpoint exige que a soma dos traffic_percentage das rotas seja exatamente 100 — caso contrário a atualização é recusada na validação. Para um canary de 10%, as duas rotas ficam com 90 e 10."
+  },
+  {
+    "id": 260,
+    "modulo": "deployment",
+    "modulo_nome": "10 - Deployment e Serving",
+    "secao": 4,
+    "secao_nome": "Model Deployment",
+    "dificuldade": "media",
+    "pergunta": "Um job noturno precisa pontuar um DataFrame pandas que cabe na memória de um único nó. Qual é a forma mais direta de fazer a inferência em lote?",
+    "alternativas": [
+      "mlflow.pyfunc.load_model(model_uri) e chamar predict() sobre o DataFrame pandas.",
+      "mlflow.pyfunc.spark_udf(spark, model_uri) aplicado ao DataFrame pandas.",
+      "Criar um serving endpoint e enviar o DataFrame linha a linha por requisições.",
+      "Converter o modelo para Spark ML e usar transform() sobre o DataFrame pandas."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "Quando os dados cabem em um nó, carregar o modelo como pyfunc e chamar predict() no DataFrame pandas é o caminho mais simples e rápido. O spark_udf só faz sentido sobre um DataFrame Spark, quando o volume exige distribuir; e chamar um endpoint por linha é o anti-padrão clássico de batch."
   }
 ]
