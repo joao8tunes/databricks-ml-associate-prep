@@ -4227,5 +4227,90 @@
     ],
     "resposta_correta": 0,
     "explicacao": "Quando os dados cabem em um nó, carregar o modelo como pyfunc e chamar predict() no DataFrame pandas é o caminho mais simples e rápido. O spark_udf só faz sentido sobre um DataFrame Spark, quando o volume exige distribuir; e chamar um endpoint por linha é o anti-padrão clássico de batch."
+  },
+  {
+    "id": 261,
+    "modulo": "eda",
+    "modulo_nome": "03 - EDA e Preparação de Dados",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "media",
+    "pergunta": "Você precisa do percentil 90 de uma coluna numérica usando .summary(). Como pedir?",
+    "alternativas": [
+      "df.summary('90%')",
+      "df.summary(percentile=90)",
+      "df.summary().filter('summary = 90%')",
+      "df.summary('p90')"
+    ],
+    "resposta_correta": 0,
+    "explicacao": "summary() aceita as estatísticas que você quiser como argumentos: 'count', 'mean', 'stddev', 'min', 'max' e qualquer percentil no formato 'NN%'. Sem argumentos, ele devolve o conjunto padrão, que inclui 25%, 50% e 75%. Não existe parâmetro percentile= nem o formato 'p90'."
+  },
+  {
+    "id": 262,
+    "modulo": "eda",
+    "modulo_nome": "03 - EDA e Preparação de Dados",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "dificil",
+    "pergunta": "Duas variáveis contínuas crescem juntas, mas a relação é claramente curva, e não uma reta. Qual coeficiente mede melhor essa associação?",
+    "alternativas": [
+      "Pearson, que capta qualquer relação entre duas contínuas.",
+      "Spearman, que mede relação monotônica e não exige linearidade.",
+      "Qui-quadrado, aplicado sobre os valores discretizados em faixas.",
+      "Coeficiente de silhueta, calculado entre os pares de pontos."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "Pearson mede só a componente linear e subestima uma relação curva ainda que perfeitamente crescente. Spearman trabalha sobre os postos dos valores, então capta qualquer relação monotônica — crescente ou decrescente — independente do formato da curva."
+  },
+  {
+    "id": 263,
+    "modulo": "eda",
+    "modulo_nome": "03 - EDA e Preparação de Dados",
+    "secao": 2,
+    "secao_nome": "Data Processing",
+    "dificuldade": "media",
+    "pergunta": "Em qual situação a transformação logarítmica é INVIÁVEL, mesmo com log1p?",
+    "alternativas": [
+      "Quando a variável tem muitos valores iguais a zero na coluna.",
+      "Quando a variável assume valores negativos, como saldo ou lucro.",
+      "Quando a variável tem forte assimetria à direita e cauda longa.",
+      "Quando a variável já foi padronizada com o StandardScaler antes."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "log é indefinido para zero e negativos; log1p(x) = log(1+x) resolve o zero e vale até x > -1, mas não salva valores negativos de verdade. Para colunas com negativos, o caminho são transformações que aceitam todo o domínio real, como Yeo-Johnson, ou separar sinal e magnitude."
+  },
+  {
+    "id": 264,
+    "modulo": "deployment",
+    "modulo_nome": "10 - Deployment e Serving",
+    "secao": 4,
+    "secao_nome": "Model Deployment",
+    "dificuldade": "dificil",
+    "pergunta": "Em uma pipeline Delta Live Tables que pontua eventos, qual é a diferença entre declarar o resultado como streaming table ou como materialized view?",
+    "alternativas": [
+      "A streaming table processa só os dados novos; a materialized view recomputa o resultado.",
+      "A streaming table guarda o histórico completo; a materialized view guarda só a última hora.",
+      "A streaming table aceita modelos pyfunc; a materialized view aceita apenas Spark ML.",
+      "A streaming table roda em compute serverless; a materialized view exige compute clássico."
+    ],
+    "resposta_correta": 0,
+    "explicacao": "A streaming table consome a fonte de forma incremental e processa apenas o que chegou desde o último checkpoint — é o que se quer para inferência contínua, porque o modelo não repontua o que já foi pontuado. A materialized view recalcula o resultado a partir da fonte quando a pipeline roda."
+  },
+  {
+    "id": 265,
+    "modulo": "deployment",
+    "modulo_nome": "10 - Deployment e Serving",
+    "secao": 4,
+    "secao_nome": "Model Deployment",
+    "dificuldade": "media",
+    "pergunta": "O que é necessário para servir um modelo pyfunc customizado em um endpoint de Model Serving?",
+    "alternativas": [
+      "Basta o modelo estar logado como artefato em um run do MLflow.",
+      "O modelo precisa estar registrado como uma versão de modelo no Unity Catalog.",
+      "O modelo precisa ser convertido para Spark ML antes de criar o endpoint.",
+      "O modelo precisa ser empacotado em uma imagem de contêiner pelo usuário."
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O endpoint aponta para uma entidade servida identificada por nome do modelo registrado e número da versão — não para um caminho de run. Logar com log_model é só o primeiro passo: é preciso registrar (register_model ou registered_model_name) para que exista uma versão a servir. O Databricks constrói o ambiente sozinho, a partir do requirements logado."
   }
 ]
