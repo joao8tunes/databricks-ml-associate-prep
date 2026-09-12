@@ -598,14 +598,18 @@ with mlflow.start_run(run_name="RF_Spark"):
 
 ```python
 # Extrair a probabilidade da classe positiva
+from pyspark.ml.functions import vector_to_array
+
 display(
     predictions
-    .withColumn("prob_churn", F.round(F.col("probability")[1], 4))
+    .withColumn("prob_churn", F.round(vector_to_array("probability")[1], 4))
     .select("customer_id", "churn", "prediction", "prob_churn")
     .orderBy(F.col("prob_churn").desc())
     .limit(15)
 )
 ```
+
+> **Pegadinha de sintaxe.** `probability` é do tipo `VectorUDT`, que o Spark SQL não trata como tipo complexo. Indexar direto — `F.col("probability")[1]` ou `.getItem(1)` — levanta `AnalysisException: INVALID_EXTRACT_BASE_FIELD_TYPE`. Desde o Spark 3.0 o caminho é `vector_to_array()`, de `pyspark.ml.functions`, que converte o vetor em um array indexável. Antes disso era preciso uma UDF: `udf(lambda v: float(v[1]), DoubleType())`.
 
 > **Correção de um mito muito difundido:** você vai encontrar em vários materiais a afirmação de que "o `GBTClassifier` não produz a coluna `probability`". Isso **era** verdade no Spark 2.x. Desde o Spark 3.0 o `GBTClassifier` estende `ProbabilisticClassifier` e **produz sim** a coluna `probability`. Confira você mesmo:
 
@@ -726,6 +730,7 @@ from pyspark.ml.evaluation import ClusteringEvaluator
 - Exige coluna `features` do tipo **Vector**; `labelCol` numérico
 - Classificadores adicionam `rawPrediction`, `probability` e `prediction`
 - **`GBTClassifier` produz `probability`** desde o Spark 3 — a afirmação contrária está desatualizada
+- `probability` é `VectorUDT`: extraia com **`vector_to_array("probability")[1]`**, nunca com `[1]` direto
 
 ---
 
