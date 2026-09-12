@@ -169,6 +169,24 @@ display(df_indexed.select("contract_type", "contract_idx",
 
 > Por padrão o `StringIndexer` ordena as categorias por **frequência decrescente** — a categoria mais comum recebe o índice 0. Isso é controlado por `stringOrderType`.
 
+### `IndexToString` — o caminho de volta
+
+Quando o **rótulo** é categórico, ele também passa pelo `StringIndexer`, e o modelo passa a prever índices (`0.0`, `1.0`, `2.0`). O `IndexToString` desfaz o mapeamento e devolve o texto original:
+
+```python
+from pyspark.ml.feature import IndexToString
+
+label_indexer = StringIndexer(inputCol="plano", outputCol="label").fit(df)
+
+converter = IndexToString(
+    inputCol="prediction",
+    outputCol="plano_previsto",
+    labels=label_indexer.labels,     # a ordem aprendida no fit do indexer
+)
+```
+
+> É um **Transformer**: recebe os `labels` prontos e não aprende nada dos dados. O erro comum é esquecer o `labels=` — sem ele não há como saber qual índice corresponde a qual texto. Em um `Pipeline`, costuma ser o último estágio, depois do modelo.
+
 ---
 
 ## 5.4 Scalers, bins e PCA
@@ -410,6 +428,7 @@ print(f"AUC-ROC do pipeline completo: {auc:.4f}")
 - Todo modelo treinado (`...Model`) é um **Transformer**
 - `Pipeline` é Estimator; `Pipeline.fit()` retorna um **`PipelineModel`** (Transformer)
 - Ordem obrigatória: **`StringIndexer` → `OneHotEncoder` → `VectorAssembler`**
+- `IndexToString` (Transformer) devolve os rótulos de texto a partir de `prediction` — exige `labels=`
 - Spark ML exige uma coluna **Vector** (por convenção chamada `features`)
 - `handleInvalid`: `"error"` (default) | `"skip"` (remove linha) | `"keep"` (cria índice extra)
 - `dropLast=True` (default) evita multicolinearidade em modelos lineares
