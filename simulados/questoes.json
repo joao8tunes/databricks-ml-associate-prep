@@ -3098,23 +3098,6 @@
     "explicacao": "O Runtime ML não é uma opção que se liga: é uma linha separada de versões do Databricks Runtime. Basta selecionar uma versão marcada como ML no menu de runtime ao criar o cluster, e as bibliotecas já vêm instaladas e com versões compatíveis entre si."
   },
   {
-    "id": 182,
-    "modulo": "plataforma",
-    "modulo_nome": "01 - Plataforma Databricks",
-    "secao": 1,
-    "secao_nome": "Databricks Machine Learning",
-    "dificuldade": "dificil",
-    "pergunta": "O que o comando OPTIMIZE tabela ZORDER BY (customer_id) faz em uma tabela Delta usada como fonte de features?",
-    "alternativas": [
-      "Cria um índice B-tree sobre customer_id para buscas pontuais rápidas.",
-      "Compacta arquivos pequenos e co-localiza os dados por customer_id.",
-      "Ordena fisicamente a tabela inteira por customer_id a cada escrita.",
-      "Particiona a tabela por customer_id, criando um diretório por cliente."
-    ],
-    "resposta_correta": 1,
-    "explicacao": "OPTIMIZE compacta muitos arquivos pequenos em arquivos maiores, e o ZORDER co-localiza nos mesmos arquivos os registros com valores próximos da coluna. Isso melhora o data skipping nos filtros por essa coluna. Não é índice nem particionamento."
-  },
-  {
     "id": 183,
     "modulo": "mlflow",
     "modulo_nome": "04 - MLflow",
@@ -3478,57 +3461,6 @@
     "explicacao": "O gatilho de retreino é a degradação: drift nas features de entrada (data drift) ou mudança na relação entre features e alvo (concept drift), confirmada pela queda da métrica de negócio. Volume de tráfego e versão de runtime são questões de infraestrutura, não de qualidade do modelo."
   },
   {
-    "id": 204,
-    "modulo": "pyspark",
-    "modulo_nome": "02 - PySpark para ML",
-    "secao": 2,
-    "secao_nome": "Data Processing",
-    "dificuldade": "facil",
-    "pergunta": "Um cientista recebeu um notebook com o Spark DataFrame spark_df, mas só conhece a API do pandas. Qual bloco permite trabalhar com sintaxe pandas sobre esses dados distribuídos?",
-    "alternativas": [
-      "import pyspark.pandas as ps; df = ps.DataFrame(spark_df)",
-      "import pyspark.pandas as ps; df = ps.to_pandas(spark_df)",
-      "import pandas as pd; df = pd.DataFrame(spark_df)",
-      "df = spark_df.to_pandas()"
-    ],
-    "resposta_correta": 0,
-    "explicacao": "O módulo pyspark.pandas expõe uma API quase idêntica à do pandas, mas executando sobre o Spark. ps.DataFrame(spark_df) embrulha o DataFrame distribuído. Já pd.DataFrame(spark_df) ou toPandas() trariam os dados para a memória do driver."
-  },
-  {
-    "id": 205,
-    "modulo": "pyspark",
-    "modulo_nome": "02 - PySpark para ML",
-    "secao": 2,
-    "secao_nome": "Data Processing",
-    "dificuldade": "dificil",
-    "pergunta": "Qual é a relação entre um DataFrame do pandas API on Spark e um Spark DataFrame nativo?",
-    "alternativas": [
-      "O primeiro é uma versão single-node do segundo, materializada no driver.",
-      "O primeiro é composto por um Spark DataFrame mais metadados de índice.",
-      "O primeiro é mais performático porque evita o planejamento do Catalyst.",
-      "Os dois são estruturas independentes, sem relação interna entre si."
-    ],
-    "resposta_correta": 1,
-    "explicacao": "O pandas API on Spark (ex-Koalas) é uma camada sobre o Spark DataFrame. Ele mantém metadados extras — principalmente o índice, que o Spark não tem — e traduz as operações pandas em operações Spark. O desempenho é o do Spark, com um pequeno custo de tradução."
-  },
-  {
-    "id": 206,
-    "modulo": "pyspark",
-    "modulo_nome": "02 - PySpark para ML",
-    "secao": 2,
-    "secao_nome": "Data Processing",
-    "dificuldade": "facil",
-    "pergunta": "Um notebook escrito em pandas ficou lento com o crescimento dos dados. Qual refatoração exige o MENOR esforço para escalar?",
-    "alternativas": [
-      "Reescrever tudo com a API de DataFrames do PySpark.",
-      "Trocar o import de pandas pelo pandas API on Spark.",
-      "Reescrever a lógica como consultas em Spark SQL.",
-      "Mover as transformações para tabelas do Feature Store."
-    ],
-    "resposta_correta": 1,
-    "explicacao": "O pandas API on Spark foi criado justamente para esse caso: a maior parte do código continua igual, trocando import pandas as pd por import pyspark.pandas as ps. Migrar para a API do PySpark ou para SQL dá mais controle, mas exige reescrever o notebook inteiro."
-  },
-  {
     "id": 207,
     "modulo": "pyspark",
     "modulo_nome": "02 - PySpark para ML",
@@ -3544,23 +3476,6 @@
     ],
     "resposta_correta": 0,
     "explicacao": "filter() (ou seu sinônimo where()) recebe uma expressão de coluna e devolve um novo DataFrame, preservando a lazy evaluation. A sintaxe .loc é do pandas, e SQL puro só funciona via spark.sql() sobre uma view registrada."
-  },
-  {
-    "id": 208,
-    "modulo": "pyspark",
-    "modulo_nome": "02 - PySpark para ML",
-    "secao": 2,
-    "secao_nome": "Data Processing",
-    "dificuldade": "dificil",
-    "pergunta": "Qual é a diferença entre repartition(200) e coalesce(200) em um Spark DataFrame?",
-    "alternativas": [
-      "repartition faz shuffle e ajusta para cima ou para baixo; coalesce só reduz.",
-      "repartition só funciona antes de uma action; coalesce funciona a qualquer momento.",
-      "repartition altera o número de arquivos gravados; coalesce altera o de executores.",
-      "repartition mantém a ordem das linhas; coalesce reordena os dados no cluster."
-    ],
-    "resposta_correta": 0,
-    "explicacao": "repartition() redistribui os dados com shuffle completo, servindo tanto para aumentar quanto para reduzir partições e equilibrando o volume entre elas. coalesce() apenas funde partições existentes, sem shuffle: é mais barato, mas só reduz e pode deixar partições desiguais."
   },
   {
     "id": 209,
@@ -3682,40 +3597,6 @@
     "explicacao": "O Imputer é um Estimator: ele precisa percorrer os dados para descobrir a mediana de cada coluna. Esse aprendizado acontece no fit(), que devolve um ImputerModel — e é esse modelo que tem o transform(). Chamar transform() no Estimator pula a etapa de cálculo."
   },
   {
-    "id": 216,
-    "modulo": "feature_engineering",
-    "modulo_nome": "05 - Feature Engineering",
-    "secao": 2,
-    "secao_nome": "Data Processing",
-    "dificuldade": "dificil",
-    "pergunta": "Qual tarefa de feature engineering é a MENOS eficiente de distribuir em um cluster?",
-    "alternativas": [
-      "Aplicar one-hot encoding nas features categóricas do dataset.",
-      "Imputar valores faltantes com a mediana exata da coluna.",
-      "Imputar valores faltantes com a média de cada coluna.",
-      "Criar indicadores binários para os valores que faltam."
-    ],
-    "resposta_correta": 1,
-    "explicacao": "Média, one-hot e indicadores são calculados com agregações parciais por partição, combinadas no final. A mediana exata exige ordenação global ou conhecer a distribuição inteira, o que força shuffle pesado — por isso o Spark costuma oferecer versões aproximadas por quantis."
-  },
-  {
-    "id": 217,
-    "modulo": "feature_engineering",
-    "modulo_nome": "05 - Feature Engineering",
-    "secao": 2,
-    "secao_nome": "Data Processing",
-    "dificuldade": "media",
-    "pergunta": "Qual ferramenta permite distribuir feature engineering em larga escala sem recorrer a UDFs nem à Pandas Function API?",
-    "alternativas": [
-      "pandas, executado no nó driver do cluster.",
-      "Spark ML, com seus transformers nativos.",
-      "scikit-learn, com o parâmetro n_jobs igual a -1.",
-      "Keras, com a estratégia de distribuição por dados."
-    ],
-    "resposta_correta": 1,
-    "explicacao": "Os transformers do Spark ML (StringIndexer, OneHotEncoder, VectorAssembler, Imputer, StandardScaler) já são implementados de forma distribuída e executam dentro do motor do Spark. UDFs e pandas Function API só entram quando a transformação não existe nativamente."
-  },
-  {
     "id": 218,
     "modulo": "feature_engineering",
     "modulo_nome": "05 - Feature Engineering",
@@ -3816,57 +3697,6 @@
     ],
     "resposta_correta": 1,
     "explicacao": "O random forest treina muitas árvores em amostras bootstrap dos dados, com subconjuntos aleatórios de features, e agrega as predições por voto ou média. Isso reduz a variância. O gradient boosting é sequencial, cada árvore corrigindo o erro da anterior."
-  },
-  {
-    "id": 224,
-    "modulo": "treinamento",
-    "modulo_nome": "06 - Treinamento e Avaliação",
-    "secao": 3,
-    "secao_nome": "Model Development",
-    "dificuldade": "media",
-    "pergunta": "Por que é difícil paralelizar o treino das árvores de um modelo de gradient boosting?",
-    "alternativas": [
-      "Porque o algoritmo precisa de todos os dados em memória em um único nó.",
-      "Porque cada árvore é treinada sobre os resíduos deixados pela anterior.",
-      "Porque o cálculo do gradiente ocupa todos os núcleos disponíveis no nó.",
-      "Porque o boosting não é baseado em álgebra linear, exigida para distribuir."
-    ],
-    "resposta_correta": 1,
-    "explicacao": "O boosting é sequencial por definição: a árvore n só pode ser treinada depois que a n-1 produziu suas predições e seus resíduos. Não dá para treinar as árvores em paralelo — o que se paraleliza é a busca de splits dentro de cada árvore. No random forest, as árvores são independentes."
-  },
-  {
-    "id": 225,
-    "modulo": "treinamento",
-    "modulo_nome": "06 - Treinamento e Avaliação",
-    "secao": 3,
-    "secao_nome": "Model Development",
-    "dificuldade": "dificil",
-    "pergunta": "Uma decision tree do Spark ML e outra do scikit-learn, com os mesmos dados e hiperparâmetros, produzem resultados diferentes. Qual é a explicação?",
-    "alternativas": [
-      "O Spark ML testa candidatos de split binados, e não todos os valores.",
-      "O Spark ML poda automaticamente as árvores que apresentam overfitting.",
-      "O Spark ML testa um subconjunto aleatório de features em cada split.",
-      "O Spark ML avalia mais candidatos de split que a implementação single-node."
-    ],
-    "resposta_correta": 0,
-    "explicacao": "Para distribuir o treino, o Spark ML discretiza as features contínuas em no máximo maxBins faixas e só testa os limites dessas faixas como candidatos a split. O scikit-learn avalia todos os valores observados. Com candidatos diferentes, as árvores divergem."
-  },
-  {
-    "id": 226,
-    "modulo": "treinamento",
-    "modulo_nome": "06 - Treinamento e Avaliação",
-    "secao": 3,
-    "secao_nome": "Model Development",
-    "dificuldade": "dificil",
-    "pergunta": "A regressão linear do Spark ML tenta primeiro resolver o problema por decomposição matricial, o que não escala com muitas variáveis. Qual abordagem ele usa para distribuir o treino em dados grandes?",
-    "alternativas": [
-      "Decomposição em valores singulares aplicada partição a partição.",
-      "Otimização iterativa, com algoritmos como L-BFGS e gradiente.",
-      "Método dos mínimos quadrados aplicado a amostras de cada executor.",
-      "Regressão logística sobre os resíduos da solução analítica inicial."
-    ],
-    "resposta_correta": 1,
-    "explicacao": "Quando o número de features cresce, a solução fechada fica inviável e o Spark ML passa para otimização iterativa: cada iteração calcula gradientes parciais nas partições, agrega e atualiza os coeficientes. É isso que permite distribuir o treino pelo cluster."
   },
   {
     "id": 227,
@@ -4054,57 +3884,6 @@
     ],
     "resposta_correta": 1,
     "explicacao": "Qualquer etapa com fit aprende algo dos dados: média e desvio do StandardScaler, mediana do Imputer, vocabulário do StringIndexer, componentes do PCA. Se isso é calculado antes da divisão dos folds, o fold de validação influencia o pré-processamento e a métrica fica otimista."
-  },
-  {
-    "id": 238,
-    "modulo": "deployment",
-    "modulo_nome": "10 - Deployment e Serving",
-    "secao": 4,
-    "secao_nome": "Model Deployment",
-    "dificuldade": "media",
-    "pergunta": "Uma função apply_model carrega o modelo correto de cada grupo e gera as predições. Como aplicá-la a cada grupo do DataFrame df com a Pandas Function API?",
-    "alternativas": [
-      "df.groupBy('device_id').applyInPandas(apply_model, schema=retorno)",
-      "df.groupBy('device_id').mapInPandas(apply_model, schema=retorno)",
-      "df.groupBy('device_id').predict(apply_model, schema=retorno)",
-      "df.groupBy('device_id').groupedApplyInPandas(apply_model, schema=retorno)"
-    ],
-    "resposta_correta": 0,
-    "explicacao": "applyInPandas é o método de GroupedData: recebe cada grupo inteiro como um DataFrame pandas, aplica a função e devolve um DataFrame Spark com o schema declarado. É o padrão para treinar ou aplicar um modelo por grupo, distribuindo os grupos pelo cluster."
-  },
-  {
-    "id": 239,
-    "modulo": "deployment",
-    "modulo_nome": "10 - Deployment e Serving",
-    "secao": 4,
-    "secao_nome": "Model Deployment",
-    "dificuldade": "media",
-    "pergunta": "Qual é a diferença entre applyInPandas e mapInPandas no PySpark?",
-    "alternativas": [
-      "applyInPandas opera por grupo após groupBy; mapInPandas, por partição.",
-      "applyInPandas devolve um valor por linha; mapInPandas, um valor por grupo.",
-      "applyInPandas roda no driver; mapInPandas roda distribuído nos executores.",
-      "applyInPandas exige schema declarado; mapInPandas o infere dos dados."
-    ],
-    "resposta_correta": 0,
-    "explicacao": "applyInPandas é chamado sobre um GroupedData e entrega à função o grupo inteiro como um DataFrame pandas. mapInPandas é chamado sobre o DataFrame e entrega um iterador de blocos de cada partição, sem agrupamento. Ambos rodam nos executores e exigem schema de retorno."
-  },
-  {
-    "id": 240,
-    "modulo": "deployment",
-    "modulo_nome": "10 - Deployment e Serving",
-    "secao": 4,
-    "secao_nome": "Model Deployment",
-    "dificuldade": "media",
-    "pergunta": "Uma Pandas UDF chamada predict recebe um iterador de DataFrames pandas e devolve as predições. Qual chamada a aplica a todas as linhas de spark_df?",
-    "alternativas": [
-      "spark_df.mapInPandas(predict, schema=retorno)",
-      "spark_df.predict(*spark_df.columns)",
-      "spark_df.applyInPandas(predict, schema=retorno)",
-      "spark_df.select(predict(spark_df.columns))"
-    ],
-    "resposta_correta": 0,
-    "explicacao": "Para uma UDF do tipo iterador, mapInPandas percorre cada partição em blocos e repassa o iterador à função. A vantagem é carregar o modelo uma vez por partição, e não uma vez por bloco. applyInPandas exigiria um groupBy antes."
   },
   {
     "id": 241,
