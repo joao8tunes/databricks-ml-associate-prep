@@ -3078,7 +3078,7 @@
       "Nunca, porque o scikit-learn só executa no nó driver do cluster."
     ],
     "resposta_correta": 1,
-    "explicacao": "O fit do scikit-learn roda em um único nó. Os executores só ajudam se você distribuir algo em volta dele: várias combinações de hiperparâmetros com SparkTrials, ou um modelo por grupo com applyInPandas. Sem isso, o Single Node entrega o mesmo resultado por menos custo."
+    "explicacao": "O fit do scikit-learn roda em um único nó. Os executores só ajudam se você distribuir algo em volta dele: várias combinações de hiperparâmetros com SparkTrials, ou a inferência do modelo já treinado com uma pandas_udf. Sem isso, o Single Node entrega o mesmo resultado por menos custo."
   },
   {
     "id": 181,
