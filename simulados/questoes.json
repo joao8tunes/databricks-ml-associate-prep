@@ -335,7 +335,7 @@
       "cache() converte o DataFrame para formato pandas automaticamente."
     ],
     "resposta_correta": 1,
-    "explicacao": "Sem cache(), cada action recomputa o DataFrame desde o início (lazy evaluation). Com cache(), após a primeira computação os dados ficam em memória e operações subsequentes são muito mais rápidas.",
+    "explicacao": "Sem cache(), cada action recomputa o DataFrame desde o início (lazy evaluation). Com cache(), após a primeira action o resultado fica materializado e as operações seguintes ficam muito mais rápidas. Para DataFrames o nível padrão é MEMORY_AND_DISK: o que não couber na memória vai para disco, em vez de ser recomputado.",
     "secao": 2,
     "secao_nome": "Data Processing"
   },
@@ -531,7 +531,7 @@
     "modulo": "mlflow",
     "modulo_nome": "04 - MLflow",
     "dificuldade": "dificil",
-    "pergunta": "Você está treinando múltiplos modelos com Hyperopt e quer agrupar todos os trials como sub-runs de um único experimento pai. O que você deve fazer?",
+    "pergunta": "Você está tunando um modelo com Hyperopt usando Trials() e quer agrupar todos os trials como sub-runs de um único run pai. O que você deve fazer?",
     "alternativas": [
       "Usar mlflow.set_experiment() dentro da função objetivo.",
       "Usar with mlflow.start_run() como run pai e nested=True nos runs dos trials.",
@@ -539,7 +539,7 @@
       "Usar mlflow.log_param('parent_run', run_id) em cada trial."
     ],
     "resposta_correta": 1,
-    "explicacao": "O padrão correto é: start_run() para o run pai (a busca Hyperopt inteira) e mlflow.start_run(nested=True) dentro da função objetivo para cada trial. Isso cria hierarquia no MLflow UI.",
+    "explicacao": "Com Trials() você controla o rastreamento: abra um run pai com start_run() em volta do fmin() e chame mlflow.start_run(nested=True) dentro da função objetivo para cada tentativa. Com SparkTrials é diferente — ele cria os runs filhos sozinho e você não deve abrir runs na função objetivo.",
     "secao": 1,
     "secao_nome": "Databricks Machine Learning"
   },
@@ -845,7 +845,7 @@
       "probability e prediction, mas não rawPrediction."
     ],
     "resposta_correta": 2,
-    "explicacao": "Desde o Spark 3.0 o GBTClassifier estende ProbabilisticClassifier e produz rawPrediction, probability e prediction, como qualquer outro classificador. A afirmação de que 'o GBT não produz probability' é verdadeira apenas no Spark 2.x e continua circulando em material desatualizado. Confira rodando: [c for c in preds.columns].",
+    "explicacao": "Desde o Spark 3.0 o GBTClassifier estende ProbabilisticClassifier e produz rawPrediction, probability e prediction, como qualquer outro classificador. A afirmação de que 'o GBT não produz probability' era verdadeira apenas no Spark 2.x e continua circulando em material desatualizado.",
     "secao": 3,
     "secao_nome": "Model Development"
   },
@@ -1024,15 +1024,15 @@
     "modulo": "hyperopt",
     "modulo_nome": "07 - Tuning de Hiperparâmetros",
     "dificuldade": "dificil",
-    "pergunta": "hp.choice('max_features', ['sqrt', 'log2', 0.5]) retorna o índice ou o valor na função objetivo?",
+    "pergunta": "Ao usar hp.choice('max_features', ['sqrt', 'log2', 0.5]), o que a função objetivo recebe durante a busca e o que fmin() devolve no final?",
     "alternativas": [
-      "Retorna o valor escolhido diretamente ('sqrt', 'log2' ou 0.5).",
-      "Retorna o índice (0, 1 ou 2); use space_eval() para obter o valor.",
-      "Retorna um dicionário com o índice e o valor escolhidos.",
-      "Retorna sempre None — o valor é passado automaticamente ao modelo."
+      "A função objetivo recebe o valor ('sqrt'); fmin() devolve o índice (0).",
+      "A função objetivo recebe o índice (0); fmin() devolve o valor ('sqrt').",
+      "Ambos recebem o índice; é preciso space_eval() nos dois momentos.",
+      "Ambos recebem o valor real; o índice nunca chega ao usuário."
     ],
-    "resposta_correta": 1,
-    "explicacao": "hp.choice retorna o ÍNDICE da opção escolhida, não o valor. Para recuperar o valor real, use space_eval(search_space, best_params). Dentro da função objetivo durante a busca, os valores já são os objetos reais — o índice é só no best_params final.",
+    "resposta_correta": 0,
+    "explicacao": "Durante a busca o Hyperopt já entrega o objeto real à função objetivo — você usa params['max_features'] direto no modelo. O best_params devolvido por fmin() guarda apenas o índice da opção sorteada, então é preciso space_eval(search_space, best_params) para recuperar 'sqrt'. Pular esse passo faz você retreinar o modelo final com o parâmetro errado.",
     "secao": 3,
     "secao_nome": "Model Development"
   },
@@ -1585,18 +1585,18 @@
     "modulo": "pyspark",
     "modulo_nome": "02 - PySpark para ML",
     "dificuldade": "dificil",
-    "pergunta": "Quais formas extraem corretamente a probabilidade da classe positiva (churn=1) das predições de um classificador Spark ML? (Selecione DUAS)",
+    "pergunta": "Quais formas extraem corretamente a probabilidade da classe positiva (índice 1) da coluna 'probability' de um classificador Spark ML? (Selecione DUAS)",
     "alternativas": [
-      "predictions.withColumn('prob_churn', F.col('probability')[1])",
-      "predictions.select(F.col('probability').getItem(1))",
-      "predictions.select('probability_positive')",
-      "predictions.withColumn('prob_churn', F.col('probability').item(1))"
+      "vector_to_array('probability')[1], com vector_to_array de pyspark.ml.functions.",
+      "Uma UDF que recebe o vetor e devolve float(v[1]) como DoubleType.",
+      "F.col('probability')[1], indexando a coluna diretamente.",
+      "F.col('probability').getItem(1), pelo método de acesso por posição."
     ],
     "resposta_correta": [
       0,
       1
     ],
-    "explicacao": "A coluna 'probability' é um vetor em que o índice corresponde à classe. Para a classe 1, F.col('probability')[1] e F.col('probability').getItem(1) são equivalentes e ambas funcionam. Não existe coluna 'probability_positive' — o classificador produz rawPrediction, probability e prediction. E Column não tem método .item().",
+    "explicacao": "A coluna probability é do tipo VectorUDT, que o Spark SQL não trata como tipo complexo: indexar com [1] ou getItem(1) levanta AnalysisException (INVALID_EXTRACT_BASE_FIELD_TYPE). Desde o Spark 3.0 o caminho idiomático é vector_to_array(), que converte o vetor em array indexável; antes disso, era preciso escrever uma UDF.",
     "secao": 3,
     "secao_nome": "Model Development"
   },
@@ -1749,7 +1749,7 @@
       "getArgument('nome')"
     ],
     "resposta_correta": 1,
-    "explicacao": "dbutils.widgets.get('nome') retorna o valor atual do widget como string. getArgument('nome') também funciona como alias em alguns contextos. dbutils.widgets.value() e indexação por chave não existem.",
+    "explicacao": "dbutils.widgets.get('nome') devolve o valor atual do widget, sempre como string — converta com int() ou float() quando precisar de número. dbutils.widgets.value() e o acesso por indexação não existem, e getArgument() é um resquício legado que não deve ser usado em código novo.",
     "secao": 1,
     "secao_nome": "Databricks Machine Learning"
   },
@@ -2125,16 +2125,16 @@
     "modulo_nome": "01 - Plataforma Databricks",
     "secao": 1,
     "secao_nome": "Databricks Machine Learning",
-    "dificuldade": "facil",
-    "pergunta": "O que diferencia o Databricks Runtime ML do Databricks Runtime padrão?",
+    "dificuldade": "media",
+    "pergunta": "Você precisa de uma versão do XGBoost mais recente que a incluída no Databricks Runtime ML. O que acontece ao instalá-la com pip no cluster?",
     "alternativas": [
-      "O Runtime ML usa uma versão otimizada do Spark, exclusiva para machine learning.",
-      "O Runtime ML inclui bibliotecas de ML pré-instaladas além de tudo o que há no padrão.",
-      "O Runtime ML só aceita notebooks em Python, enquanto o padrão aceita SQL e Scala.",
-      "O Runtime ML é o único runtime que suporta Delta Lake e Unity Catalog."
+      "A instalação falha: o Runtime ML bloqueia a troca de suas bibliotecas.",
+      "A nova versão substitui a do runtime, e a compatibilidade passa a ser sua.",
+      "As duas versões convivem, e o import escolhe a mais nova automaticamente.",
+      "A instalação só vale no driver, e os workers seguem com a versão antiga."
     ],
     "resposta_correta": 1,
-    "explicacao": "O Runtime ML é o Runtime padrão acrescido do stack de machine learning pré-instalado e validado. Delta Lake e Unity Catalog existem nos dois. A variante GPU adiciona CUDA e drivers."
+    "explicacao": "Bibliotecas instaladas no cluster têm precedência sobre as do runtime e valem para driver e workers. O ganho do Runtime ML é justamente o conjunto de versões testadas em conjunto: ao sobrescrever uma delas, você assume o risco de conflito com MLflow, scikit-learn e as demais."
   },
   {
     "id": 126,
@@ -2951,7 +2951,7 @@
     "secao": 4,
     "secao_nome": "Model Deployment",
     "dificuldade": "media",
-    "pergunta": "Ao criar um modelo customizado com mlflow.pyfunc.PythonModel, qual é o papel do método load_context()?",
+    "pergunta": "Em um modelo pyfunc customizado, qual é o papel do método load_context()?",
     "alternativas": [
       "Ele é obrigatório e é chamado a cada requisição de predição.",
       "Ele é opcional e roda uma única vez, na inicialização do modelo.",
@@ -3123,13 +3123,13 @@
     "dificuldade": "media",
     "pergunta": "Após várias execuções em um experimento, você quer o run_id daquele com o menor RMSE. Qual chamada resolve isso?",
     "alternativas": [
-      "mlflow.search_runs(exp_id, order_by=['metrics.rmse ASC'])['run_id'][0]",
-      "mlflow.search_runs(exp_id, filter_string='metrics.rmse')['run_id'].min()",
+      "mlflow.search_runs([exp_id], order_by=['metrics.rmse ASC'])['run_id'][0]",
+      "mlflow.search_runs([exp_id], filter_string='metrics.rmse')['run_id'].min()",
       "mlflow.get_run(exp_id, metric='rmse', best=True).info.run_id",
-      "mlflow.list_run_infos(exp_id, sort='rmse').head(1).run_id"
+      "mlflow.list_run_infos([exp_id], sort='rmse').head(1).run_id"
     ],
     "resposta_correta": 0,
-    "explicacao": "mlflow.search_runs() devolve um DataFrame pandas com uma linha por run. Ordenando por metrics.rmse em ordem crescente, o menor RMSE fica na primeira linha, e a coluna run_id traz o identificador. Ordem crescente porque, em RMSE, menor é melhor."
+    "explicacao": "mlflow.search_runs() recebe uma LISTA de experiment_ids e devolve um DataFrame pandas com uma linha por run. Ordenando por metrics.rmse em ordem crescente, o menor RMSE fica na primeira linha, e a coluna run_id traz o identificador. Crescente porque, em RMSE, menor é melhor."
   },
   {
     "id": 184,
@@ -3985,7 +3985,7 @@
       "18"
     ],
     "resposta_correta": 1,
-    "explicacao": "São 3 x 2 = 6 combinações de hiperparâmetros, e é esse o grau de paralelismo do CrossValidator: cada combinação é avaliada nos 3 folds, totalizando 18 treinos. Confundir o total de treinos com o paralelismo é o erro clássico dessa questão."
+    "explicacao": "São 3 x 2 = 6 combinações de hiperparâmetros, e cada uma é independente das demais — esse é o número que a prova cobra como 'modelos treináveis em paralelo'. O total de treinos é 18, porque cada combinação é avaliada nos 3 folds. Confundir os dois números é o erro clássico dessa questão."
   },
   {
     "id": 234,
