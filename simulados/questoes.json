@@ -91,9 +91,9 @@
     "dificuldade": "media",
     "pergunta": "O que o Delta Lake garante com suas transações ACID?",
     "alternativas": [
-      "Que os dados são comprimidos automaticamente para reduzir armazenamento.",
-      "Que operações de escrita são atômicas — se falham, os dados não ficam corrompidos.",
-      "Que consultas SQL executam mais rápido do que em Parquet.",
+      "Que os dados são comprimidos automaticamente para reduzir o armazenamento.",
+      "Que uma escrita é tudo-ou-nada: se falhar, a tabela não fica corrompida.",
+      "Que as consultas SQL executam mais rápido do que no formato Parquet puro.",
       "Que o schema é inferido automaticamente em qualquer formato de arquivo."
     ],
     "resposta_correta": 1,
@@ -159,9 +159,9 @@
     "dificuldade": "dificil",
     "pergunta": "Qual é a função do nó Driver em um cluster Spark?",
     "alternativas": [
-      "Armazenar dados permanentemente em disco.",
-      "Processar partições de dados em paralelo com os Worker Nodes.",
-      "Orquestrar a execução, distribuir tarefas e coletar resultados dos Workers.",
+      "Armazenar os dados de forma permanente no disco local do cluster.",
+      "Processar partições de dados em paralelo junto com os Worker Nodes.",
+      "Orquestrar a execução, distribuir tarefas e coletar os resultados.",
       "Monitorar a saúde dos Worker Nodes e reiniciá-los em caso de falha."
     ],
     "resposta_correta": 2,
@@ -210,10 +210,10 @@
     "dificuldade": "media",
     "pergunta": "Qual é o principal risco de usar df.collect() em um DataFrame Spark com milhões de linhas?",
     "alternativas": [
-      "collect() não suporta DataFrames com mais de 1 milhão de linhas.",
-      "collect() traz todas as linhas para a memória do driver, podendo causar OutOfMemoryError.",
-      "collect() executa mais lentamente que show() por processar os dados em sequência.",
-      "collect() só funciona com DataFrames pandas, não com DataFrames Spark."
+      "collect() não suporta DataFrames que tenham mais de um milhão de linhas.",
+      "collect() traz todas as linhas para o driver e pode estourar a memória.",
+      "collect() executa mais lentamente que show() por processar em sequência.",
+      "collect() só funciona com DataFrames pandas, e não com DataFrames Spark."
     ],
     "resposta_correta": 1,
     "explicacao": "collect() traz TODOS os dados do DataFrame distribuído para a memória do nó Driver. Em grandes volumes, isso pode esgotar a memória do Driver e causar falha. Use show() ou limit().collect() para amostras.",
@@ -397,10 +397,10 @@
     "dificuldade": "media",
     "pergunta": "Para que serve o parâmetro nested=True em mlflow.start_run()?",
     "alternativas": [
-      "Para criar um run que herda automaticamente os parâmetros do run anterior.",
-      "Para criar um run filho dentro de um run pai ativo, mantendo hierarquia de experimentos.",
-      "Para executar o run em paralelo com outros runs do mesmo experimento.",
-      "Para aumentar o nível de log e registrar informações adicionais de debug."
+      "Para criar um run que herda automaticamente os parâmetros do anterior.",
+      "Para criar um run filho dentro de um run pai já ativo, com hierarquia.",
+      "Para executar o run em paralelo com os outros runs do experimento.",
+      "Para aumentar o nível de log e registrar informações extras de debug."
     ],
     "resposta_correta": 1,
     "explicacao": "nested=True cria um run filho dentro de um run pai. Muito usado com Hyperopt: o run pai representa a busca geral, e cada trial cria um run filho com os parâmetros e métricas daquela tentativa.",
@@ -432,9 +432,9 @@
     "pergunta": "Qual é a diferença entre mlflow.log_param() e mlflow.log_metric()?",
     "alternativas": [
       "log_param() aceita apenas strings; log_metric() aceita apenas números.",
-      "log_param() é para valores fixos; log_metric() para valores que variam por step.",
+      "log_param() é para valores fixos; log_metric() para valores com step.",
       "log_param() salva no Registry; log_metric() salva apenas no Tracking.",
-      "Não há diferença funcional entre eles — ambos registram pares chave-valor."
+      "Não há diferença funcional: os dois registram pares de chave e valor."
     ],
     "resposta_correta": 1,
     "explicacao": "log_param() registra hiperparâmetros configurados antes do treino (n_estimators, learning_rate, etc.) — imutáveis durante o run. log_metric() registra valores de avaliação que podem ter step (loss por época, acurácia, etc.).",
@@ -533,10 +533,10 @@
     "dificuldade": "dificil",
     "pergunta": "Você está tunando um modelo com Hyperopt usando Trials() e quer agrupar todos os trials como sub-runs de um único run pai. O que você deve fazer?",
     "alternativas": [
-      "Usar mlflow.set_experiment() dentro da função objetivo.",
-      "Usar with mlflow.start_run() como run pai e nested=True nos runs dos trials.",
-      "Usar SparkTrials, que agrupa automaticamente os runs em hierarquia.",
-      "Usar mlflow.log_param('parent_run', run_id) em cada trial."
+      "Chamar mlflow.set_experiment() dentro da própria função objetivo.",
+      "Abrir um run pai com start_run() e usar nested=True em cada trial.",
+      "Trocar para SparkTrials, que agrupa os runs em hierarquia sozinho.",
+      "Registrar mlflow.log_param('parent_run', run_id) em cada trial."
     ],
     "resposta_correta": 1,
     "explicacao": "Com Trials() você controla o rastreamento: abra um run pai com start_run() em volta do fmin() e chame mlflow.start_run(nested=True) dentro da função objetivo para cada tentativa. Com SparkTrials é diferente — ele cria os runs filhos sozinho e você não deve abrir runs na função objetivo.",
@@ -839,10 +839,10 @@
     "dificuldade": "dificil",
     "pergunta": "Quais colunas o GBTClassifier do Spark ML (versão 3.x ou superior) adiciona ao DataFrame após transform()?",
     "alternativas": [
-      "Apenas prediction — o GBT não gera scores intermediários.",
-      "Apenas rawPrediction e prediction — o GBT não suporta probabilidades.",
-      "rawPrediction, probability e prediction — igual aos demais classificadores.",
-      "probability e prediction, mas não rawPrediction."
+      "Apenas prediction, porque o GBT não expõe nenhum score intermediário.",
+      "Apenas rawPrediction e prediction: o GBT não produz probabilidades.",
+      "rawPrediction, probability e prediction, como os demais classificadores.",
+      "probability e prediction, mas nunca a coluna rawPrediction bruta."
     ],
     "resposta_correta": 2,
     "explicacao": "Desde o Spark 3.0 o GBTClassifier estende ProbabilisticClassifier e produz rawPrediction, probability e prediction, como qualquer outro classificador. A afirmação de que 'o GBT não produz probability' era verdadeira apenas no Spark 2.x e continua circulando em material desatualizado.",
@@ -1060,10 +1060,10 @@
     "dificuldade": "facil",
     "pergunta": "O que o parâmetro primary_metric controla no Databricks AutoML?",
     "alternativas": [
-      "A métrica usada para monitorar overfitting durante o treinamento.",
-      "A métrica pela qual os modelos são ordenados para selecionar o 'melhor' trial.",
-      "A velocidade de convergência do processo de AutoML.",
-      "O número máximo de métricas que serão logadas no MLflow."
+      "A métrica usada para monitorar o overfitting durante o treinamento.",
+      "A métrica usada para ordenar os modelos e escolher o melhor trial.",
+      "A velocidade de convergência do processo de busca conduzido pelo AutoML.",
+      "O número máximo de métricas que serão logadas em cada run do MLflow."
     ],
     "resposta_correta": 1,
     "explicacao": "primary_metric define qual métrica é usada para comparar e ordenar os modelos treinados. O modelo com o melhor valor nessa métrica é retornado como summary.best_trial.",
@@ -1162,9 +1162,9 @@
     "dificuldade": "facil",
     "pergunta": "Qual é o principal problema que o Databricks Feature Store resolve?",
     "alternativas": [
-      "A lentidão de consultas em tabelas Delta com muitas partições.",
-      "O training-serving skew entre as features do treino e as da produção.",
-      "A dificuldade de versionar os modelos no MLflow Registry.",
+      "A lentidão de consultas em tabelas Delta com partições demais.",
+      "O training-serving skew entre as features do treino e as de produção.",
+      "A dificuldade de versionar e comparar os modelos no MLflow Registry.",
       "A falta de suporte a features de séries temporais no Spark ML."
     ],
     "resposta_correta": 1,
@@ -1366,10 +1366,10 @@
     "dificuldade": "media",
     "pergunta": "O Real-time Model Serving (endpoint REST) está disponível na Databricks Free Edition?",
     "alternativas": [
-      "Sim, mas com limites de endpoints ativos e sem GPU serving.",
-      "Sim, sem nenhuma restrição de uso.",
-      "Não — requer um workspace pago ou em trial.",
-      "Não — requer contrato Enterprise com SLA garantido."
+      "Sim, mas com limite de endpoints ativos e sem serving em GPU.",
+      "Sim, sem nenhuma restrição de uso ou de número de endpoints.",
+      "Não — o serving exige um workspace pago ou em período de trial.",
+      "Não — o serving exige contrato Enterprise com SLA garantido."
     ],
     "resposta_correta": 0,
     "explicacao": "Diferente da antiga Community Edition, o Free Edition inclui Model Serving — mas com restrições: limite de endpoints ativos, sem GPU serving, sem provisioned throughput e sem modelos customizados em GPU/batch inference.",
@@ -1468,10 +1468,10 @@
     "dificuldade": "media",
     "pergunta": "Qual é a diferença entre RMSE e MAE como métricas de regressão?",
     "alternativas": [
-      "RMSE é para regressão linear; MAE é para regressão não-linear.",
-      "RMSE penaliza erros grandes mais severamente; MAE é mais robusto a outliers.",
+      "RMSE serve para regressão linear; MAE, para regressão não-linear.",
+      "RMSE penaliza mais os erros grandes; MAE é robusto a outliers.",
       "RMSE é calculado por linha; MAE é calculado por coluna do DataFrame.",
-      "RMSE está na unidade quadrada do target; MAE está na mesma unidade."
+      "RMSE fica na unidade quadrada do target; MAE, na mesma unidade."
     ],
     "resposta_correta": 1,
     "explicacao": "RMSE = sqrt(mean((y_pred - y_true)²)) — o quadrado amplifica erros grandes, tornando o RMSE sensível a outliers. MAE = mean(|y_pred - y_true|) — trata todos os erros linearmente, sendo mais robusto. RMSE está na mesma unidade do target.",
@@ -1692,10 +1692,10 @@
     "dificuldade": "dificil",
     "pergunta": "Dois cientistas de dados estão treinando modelos ao mesmo tempo no mesmo experimento MLflow. O que acontece com os runs de cada um?",
     "alternativas": [
-      "Os runs se sobrescrevem — apenas o último run é mantido.",
-      "Cada run é registrado independentemente com seu próprio run_id, sem interferência.",
-      "MLflow lança uma exceção de conflito e bloqueia o segundo cientista.",
-      "Os parâmetros dos dois runs são mesclados automaticamente em um único run."
+      "Os runs se sobrescrevem e apenas o último deles é mantido no final.",
+      "Cada run tem seu próprio run_id e é registrado sem interferência.",
+      "O MLflow lança exceção de conflito e bloqueia o segundo cientista.",
+      "Os parâmetros dos dois runs são mesclados em um único run final."
     ],
     "resposta_correta": 1,
     "explicacao": "MLflow foi projetado para uso concorrente. Cada mlflow.start_run() cria um run com run_id único e timestamp separado. Múltiplos usuários e processos podem logar simultaneamente no mesmo experimento sem conflito.",
@@ -1777,10 +1777,10 @@
     "dificuldade": "media",
     "pergunta": "Segundo as boas práticas de MLOps no Databricks, o que deve ser versionado em um projeto de machine learning?",
     "alternativas": [
-      "Apenas o código, como em qualquer projeto de software.",
-      "Código, dados e modelos — os três, usando Git, Delta Lake e MLflow Registry respectivamente.",
-      "Apenas o modelo final aprovado para produção.",
-      "Código e modelos; dados não precisam ser versionados porque mudam constantemente."
+      "Apenas o código, como em qualquer outro projeto de software.",
+      "Código, dados e modelos — com Git, Delta Lake e MLflow Registry.",
+      "Apenas o modelo final, depois de aprovado para ir a produção.",
+      "Código e modelos; dados mudam demais para valer a pena versionar."
     ],
     "resposta_correta": 1,
     "explicacao": "MLOps se distingue de DevOps justamente por precisar versionar três coisas. Sem a versão dos dados, você não reproduz um modelo antigo mesmo tendo o código e os hiperparâmetros. No Databricks: Git para código, Delta Lake (time travel) para dados e MLflow Registry para modelos.",
@@ -1902,9 +1902,9 @@
     "pergunta": "Na estratégia 'deploy code' (promover código), onde o modelo que serve produção é treinado?",
     "alternativas": [
       "No ambiente de desenvolvimento, e depois copiado para produção.",
-      "No ambiente de produção, com dados de produção, executando o código que foi promovido.",
-      "Em um ambiente isolado de staging, e o binário é promovido para produção.",
-      "Na máquina local do cientista de dados, antes do commit."
+      "No ambiente de produção, executando o código que foi promovido.",
+      "Em um ambiente de staging isolado, e o binário é então promovido.",
+      "Na máquina local do cientista de dados, antes de qualquer commit."
     ],
     "resposta_correta": 1,
     "explicacao": "Em deploy code, o que atravessa os ambientes é o CÓDIGO (via Git/CI). O modelo é treinado dentro de produção, com os dados de produção. Isso facilita re-treino automático e encaixa naturalmente em CI/CD tradicional, que testa código."
@@ -2075,7 +2075,7 @@
     "pergunta": "Qual é a vantagem mais característica do Databricks AutoML em relação a ferramentas AutoML 'caixa-preta'?",
     "alternativas": [
       "Ele treina mais modelos por minuto do que as ferramentas concorrentes.",
-      "Ele gera um notebook com o código-fonte completo e editável do melhor modelo.",
+      "Ele entrega um notebook com o código-fonte editável do melhor modelo.",
       "Ele dispensa a necessidade de manter um conjunto de teste separado.",
       "Ele registra o melhor modelo em produção automaticamente, sem revisão."
     ],
@@ -2146,9 +2146,9 @@
     "pergunta": "Qual é a diferença entre df.describe() e df.summary() em um DataFrame Spark?",
     "alternativas": [
       "describe() funciona em colunas de texto e summary() apenas em numéricas.",
-      "summary() retorna tudo o que describe() retorna e adiciona os quartis (25%, 50%, 75%).",
-      "describe() é uma action e summary() é uma transformação lazy.",
-      "summary() calcula estatísticas apenas sobre uma amostra dos dados."
+      "summary() traz o que describe() traz e ainda os quartis 25%, 50% e 75%.",
+      "describe() é uma action imediata e summary() é uma transformação lazy.",
+      "summary() calcula as estatísticas apenas sobre uma amostra dos dados."
     ],
     "resposta_correta": 1,
     "explicacao": "describe() traz count, mean, stddev, min e max. summary() traz o mesmo e acrescenta os percentis 25%, 50% (mediana) e 75%. Se a questão pede mediana ou os dados para calcular o IQR, a resposta é summary()."
@@ -2196,9 +2196,9 @@
     "dificuldade": "dificil",
     "pergunta": "Por que o método do IQR é considerado mais robusto que a regra dos 3 desvios padrão para detectar outliers?",
     "alternativas": [
-      "Porque o IQR é mais rápido de calcular em dados distribuídos pelo cluster.",
-      "Porque os quartis não são distorcidos pelos outliers, e o IQR não pressupõe normalidade.",
-      "Porque o IQR sempre identifica mais outliers que a regra dos 3 sigmas.",
+      "Porque o IQR é mais rápido de calcular em dados distribuídos no cluster.",
+      "Porque os quartis não são distorcidos por outliers nem exigem normalidade.",
+      "Porque o IQR sempre identifica mais outliers do que a regra dos 3 sigmas.",
       "Porque o IQR funciona em colunas categóricas, e o desvio padrão não."
     ],
     "resposta_correta": 1,
@@ -2366,10 +2366,10 @@
     "dificuldade": "media",
     "pergunta": "O Imputer do Spark ML pode ser aplicado diretamente em uma coluna do tipo StringType usando strategy='mode'?",
     "alternativas": [
-      "Sim, mode foi criado exatamente para colunas categóricas de texto.",
-      "Não — o Imputer aceita apenas colunas numéricas, inclusive com strategy='mode'.",
-      "Sim, desde que handleInvalid='keep' seja configurado.",
-      "Sim, mas apenas se a coluna tiver no máximo 10 categorias distintas."
+      "Sim, a estratégia mode foi criada para colunas categóricas de texto.",
+      "Não — o Imputer aceita apenas colunas numéricas em todas as estratégias.",
+      "Sim, desde que o parâmetro handleInvalid seja configurado como keep.",
+      "Sim, mas apenas se a coluna tiver no máximo dez categorias distintas."
     ],
     "resposta_correta": 1,
     "explicacao": "O Imputer do Spark ML opera somente sobre colunas numéricas nas três estratégias (mean, median, mode). Para imputar uma coluna de texto, calcule a moda com groupBy/count/orderBy e aplique fillna()."
@@ -2417,10 +2417,10 @@
     "dificuldade": "media",
     "pergunta": "Por que o parâmetro dropLast=True é o padrão do OneHotEncoder do Spark ML?",
     "alternativas": [
-      "Para reduzir o uso de memória do vetor em datasets grandes.",
-      "Para evitar a multicolinearidade perfeita da armadilha da variável dummy.",
+      "Para reduzir o uso de memória do vetor em datasets muito grandes.",
+      "Para evitar a multicolinearidade da armadilha da variável dummy.",
       "Para descartar a categoria menos frequente, que costuma ser ruído.",
-      "Para garantir que a soma das colunas binárias seja sempre 1."
+      "Para garantir que a soma das colunas binárias seja sempre igual a 1."
     ],
     "resposta_correta": 1,
     "explicacao": "Com todas as N colunas, a soma delas é sempre 1 e uma coluna é combinação linear das outras — multicolinearidade perfeita, que quebra a estimação de coeficientes em modelos lineares. Com dropLast=True a categoria descartada vira a base (vetor de zeros)."
@@ -2435,9 +2435,9 @@
     "pergunta": "Em qual cenário a transformação logarítmica de uma variável é mais apropriada?",
     "alternativas": [
       "Quando a variável já tem uma distribuição aproximadamente normal.",
-      "Quando a variável tem forte assimetria à direita, como renda ou receita.",
+      "Quando a variável tem forte assimetria à direita, como a renda.",
       "Quando a variável é categórica com muitas categorias distintas.",
-      "Quando o modelo escolhido é uma árvore de decisão profunda."
+      "Quando o modelo escolhido é uma árvore de decisão bem profunda."
     ],
     "resposta_correta": 1,
     "explicacao": "O log comprime a cauda longa de distribuições assimétricas à direita e transforma crescimento multiplicativo em aditivo — útil para modelos lineares, que assumem relações aditivas. Em distribuição já simétrica não há ganho, e árvores são invariantes a transformações monotônicas."
@@ -2536,10 +2536,10 @@
     "dificuldade": "media",
     "pergunta": "O dataset de churn é altamente desbalanceado (apenas 10% de churn). Qual estratégia mitiga DIRETAMENTE o viés do modelo em favor da classe majoritária?",
     "alternativas": [
-      "Normalizar as features para que fiquem na mesma escala, melhorando a performance do modelo.",
-      "Usar cost-sensitive learning, atribuindo um custo de erro maior à classe minoritária durante o treino.",
-      "Aumentar o tamanho do dataset coletando mais dados de clientes que NÃO deram churn.",
-      "Usar um modelo mais simples para reduzir overfitting e generalizar melhor."
+      "Normalizar as features para que todas fiquem na mesma escala numérica.",
+      "Usar cost-sensitive learning, com custo maior de erro na classe rara.",
+      "Coletar mais dados de clientes que NÃO deram churn, ampliando a base.",
+      "Usar um modelo mais simples, para reduzir overfitting e generalizar."
     ],
     "resposta_correta": 1,
     "explicacao": "Cost-sensitive learning (class weights) faz o algoritmo pagar mais caro por errar a classe rara, atacando o desbalanceamento na função de perda. Normalizar features não tem relação com desbalanceamento; coletar mais dados da classe MAJORITÁRIA piora o problema; e simplificar o modelo trata overfitting, não desbalanceamento."
@@ -2750,9 +2750,9 @@
     "pergunta": "Uma empresa precisa de um modelo cuja decisão possa ser explicada individualmente a clientes e a um órgão regulador. Qual algoritmo é mais apropriado?",
     "alternativas": [
       "Gradient Boosted Trees com 500 estimadores e profundidade alta.",
-      "Regressão logística ou árvore de decisão, cujas regras são interpretáveis.",
-      "Rede neural multicamadas com várias camadas ocultas.",
-      "Ensemble de Random Forest com 1000 árvores agregadas."
+      "Regressão logística ou árvore de decisão, que expõem suas regras.",
+      "Rede neural multicamadas com várias camadas ocultas e dropout.",
+      "Ensemble de Random Forest com 1000 árvores agregadas por voto."
     ],
     "resposta_correta": 1,
     "explicacao": "Quando o enunciado enfatiza explicabilidade, a resposta é um modelo interpretável: a regressão logística expõe coeficientes por feature e a árvore de decisão expõe regras legíveis. Ensembles e redes neurais costumam ter performance maior, mas exigem técnicas adicionais (SHAP) para explicação."
@@ -2784,9 +2784,9 @@
     "pergunta": "Por que random search frequentemente supera grid search com o mesmo orçamento de tentativas?",
     "alternativas": [
       "Porque o random search consegue testar mais combinações no mesmo tempo.",
-      "Porque poucos hiperparâmetros importam, e o random search testa mais valores deles.",
-      "Porque o random search usa otimização bayesiana para guiar a busca.",
-      "Porque o grid search não aceita hiperparâmetros contínuos."
+      "Porque poucos hiperparâmetros importam, e ele testa mais valores deles.",
+      "Porque o random search usa otimização bayesiana para guiar cada passo.",
+      "Porque o grid search não aceita hiperparâmetros de valor contínuo."
     ],
     "resposta_correta": 1,
     "explicacao": "Em uma grade, cada hiperparâmetro tem poucos valores distintos e eles se repetem em todas as combinações. O random search sorteia valores diferentes a cada tentativa, cobrindo muito mais valores distintos dos hiperparâmetros que de fato importam."
@@ -2800,10 +2800,10 @@
     "dificuldade": "media",
     "pergunta": "Você está tunando um modelo scikit-learn (single-node) e quer acelerar a busca distribuindo as tentativas pelo cluster. O que usar?",
     "alternativas": [
-      "Trials(), que já distribui automaticamente no Spark.",
-      "SparkTrials(parallelism=N), que envia cada trial para um worker do Spark.",
+      "Trials(), que já distribui as tentativas automaticamente no Spark.",
+      "SparkTrials(parallelism=N), que manda cada trial para um worker.",
       "CrossValidator do Spark ML, com o modelo sklearn como estimator.",
-      "Não é possível distribuir tuning de modelos sklearn no Databricks."
+      "Não é possível distribuir o tuning de modelos sklearn no Databricks."
     ],
     "resposta_correta": 1,
     "explicacao": "SparkTrials existe exatamente para isso: paralelizar o tuning de modelos SINGLE-NODE distribuindo cada trial para um worker. Para modelos já distribuídos (Spark MLlib), use Trials() — o modelo sozinho já consome o cluster."
@@ -2936,10 +2936,10 @@
     "dificuldade": "facil",
     "pergunta": "Uma empresa precisa pontuar toda a base de 5 milhões de clientes uma vez por noite e gravar o resultado em uma tabela. Qual forma de serving é mais apropriada?",
     "alternativas": [
-      "Real-time serving, criando um endpoint REST e chamando-o 5 milhões de vezes.",
-      "Batch inference, aplicando o modelo em todo o DataFrame de uma vez e gravando em Delta.",
-      "Streaming inference com uma janela de 24 horas.",
-      "Model serving com scale to zero desativado."
+      "Real-time serving, com um endpoint REST chamado 5 milhões de vezes.",
+      "Batch inference, aplicando o modelo ao DataFrame e gravando em Delta.",
+      "Streaming inference, com uma janela deslizante de 24 horas por lote.",
+      "Model serving com scale to zero desativado e latência garantida."
     ],
     "resposta_correta": 1,
     "explicacao": "Volume alto, periodicidade definida e nenhuma exigência de latência — esse é o cenário clássico de batch inference. Ele também tem o menor custo por predição. Chamar um endpoint REST 5 milhões de vezes seria lento e caro."
@@ -3004,10 +3004,10 @@
     "dificuldade": "dificil",
     "pergunta": "Por que aplicar um modelo com pandas_udf é mais eficiente que usar uma UDF Python comum em um DataFrame Spark grande?",
     "alternativas": [
-      "Porque a pandas_udf executa no driver, evitando tráfego de rede.",
-      "Porque a pandas_udf opera sobre batches via Apache Arrow, e não linha a linha.",
-      "Porque a pandas_udf converte automaticamente o modelo para Spark ML.",
-      "Porque a pandas_udf ignora a lazy evaluation e executa imediatamente."
+      "Porque a pandas_udf executa no driver, evitando o tráfego de rede.",
+      "Porque a pandas_udf opera em batches via Arrow, e não linha a linha.",
+      "Porque a pandas_udf converte o modelo para Spark ML automaticamente.",
+      "Porque a pandas_udf ignora a lazy evaluation e executa na hora."
     ],
     "resposta_correta": 1,
     "explicacao": "A UDF Python comum paga custo de serialização JVM<->Python a cada linha. A pandas_udf transfere blocos via Apache Arrow e entrega Series pandas a função, permitindo operações vetorizadas de numpy/sklearn. A diferença de performance costuma ser de ordens de grandeza. Ambas executam nos workers."
@@ -3022,7 +3022,7 @@
     "pergunta": "Um cientista de dados importa os dados com Spark SQL e depois treina o modelo com Spark ML. Qual recurso de compute atende melhor a esse fluxo?",
     "alternativas": [
       "Um SQL Warehouse, que executa Spark SQL com o melhor custo-benefício.",
-      "Um cluster multi-node com Databricks Runtime ML, que executa ambas as etapas.",
+      "Um cluster multi-node com Databricks Runtime ML, para as duas etapas.",
       "Um cluster Single Node, suficiente porque o Spark ML roda no driver.",
       "Um Job Cluster com o runtime padrão, sem bibliotecas de ML instaladas."
     ],
@@ -3296,8 +3296,8 @@
     "dificuldade": "media",
     "pergunta": "Em qual cenário o Databricks AutoML é a escolha MENOS adequada?",
     "alternativas": [
-      "Quando é preciso um baseline rápido sobre dados tabulares.",
-      "Quando a equipe precisa de uma arquitetura de deep learning customizada.",
+      "Quando é preciso um baseline rápido sobre dados tabulares comuns.",
+      "Quando a equipe precisa de arquitetura de deep learning customizada.",
       "Quando vários algoritmos candidatos devem ser comparados entre si.",
       "Quando é preciso entender quais features pesam mais no resultado."
     ],
@@ -3571,10 +3571,10 @@
     "dificuldade": "media",
     "pergunta": "Qual método é apropriado para comparar uma variável CATEGÓRICA com uma variável CONTÍNUA?",
     "alternativas": [
-      "Correlação de Pearson entre as duas colunas.",
-      "Boxplot da contínua por categoria, com teste t ou ANOVA.",
-      "Teste qui-quadrado sobre a tabela de contingência.",
-      "Matriz de dispersão com regressão linear ajustada."
+      "Correlação de Pearson calculada entre as duas colunas do DataFrame.",
+      "Boxplot da contínua por categoria, com teste t ou ANOVA para confirmar.",
+      "Teste qui-quadrado sobre a tabela de contingência cruzada das duas.",
+      "Matriz de dispersão com uma regressão linear ajustada entre elas."
     ],
     "resposta_correta": 1,
     "explicacao": "Pearson exige duas variáveis contínuas e qui-quadrado, duas categóricas. Para o caso misto, compara-se a distribuição da contínua dentro de cada categoria: visualmente com boxplots, e formalmente com teste t (duas categorias) ou ANOVA (três ou mais)."
@@ -3690,10 +3690,10 @@
     "dificuldade": "dificil",
     "pergunta": "Qual tarefa de feature engineering é a MENOS eficiente de distribuir em um cluster?",
     "alternativas": [
-      "Aplicar one-hot encoding em features categóricas.",
+      "Aplicar one-hot encoding nas features categóricas do dataset.",
       "Imputar valores faltantes com a mediana exata da coluna.",
-      "Imputar valores faltantes com a média da coluna.",
-      "Criar indicadores binários de valores faltantes."
+      "Imputar valores faltantes com a média de cada coluna.",
+      "Criar indicadores binários para os valores que faltam."
     ],
     "resposta_correta": 1,
     "explicacao": "Média, one-hot e indicadores são calculados com agregações parciais por partição, combinadas no final. A mediana exata exige ordenação global ou conhecer a distribuição inteira, o que força shuffle pesado — por isso o Spark costuma oferecer versões aproximadas por quantis."
@@ -3860,8 +3860,8 @@
     "dificuldade": "dificil",
     "pergunta": "A regressão linear do Spark ML tenta primeiro resolver o problema por decomposição matricial, o que não escala com muitas variáveis. Qual abordagem ele usa para distribuir o treino em dados grandes?",
     "alternativas": [
-      "Decomposição em valores singulares aplicada por partição.",
-      "Otimização iterativa, com algoritmos como L-BFGS e gradiente descendente.",
+      "Decomposição em valores singulares aplicada partição a partição.",
+      "Otimização iterativa, com algoritmos como L-BFGS e gradiente.",
       "Método dos mínimos quadrados aplicado a amostras de cada executor.",
       "Regressão logística sobre os resíduos da solução analítica inicial."
     ],
@@ -4013,10 +4013,10 @@
     "dificuldade": "media",
     "pergunta": "Você vai tunar um modelo do Spark ML, que já distribui o próprio treino. Qual classe de Trials usar no Hyperopt?",
     "alternativas": [
-      "SparkTrials, para aproveitar todos os núcleos do cluster.",
+      "SparkTrials, para aproveitar todos os núcleos livres do cluster.",
       "Trials, porque o paralelismo já está dentro do treino do modelo.",
-      "SparkTrials com parallelism igual ao número de executores.",
-      "Qualquer uma das duas: o Hyperopt escolhe automaticamente."
+      "SparkTrials com parallelism igual ao número total de executores.",
+      "Qualquer uma das duas: o Hyperopt escolhe sozinho o modo certo."
     ],
     "resposta_correta": 1,
     "explicacao": "SparkTrials distribui uma avaliação por executor e pressupõe que cada treino caiba em um nó — é para modelos single-node como scikit-learn. Um modelo Spark ML já usa o cluster inteiro em cada fit, então empilhar as duas camadas de paralelismo gera conflito por recursos. Nesse caso, Trials()."
@@ -4132,7 +4132,7 @@
     "dificuldade": "dificil",
     "pergunta": "Qual é a vantagem de pontuar um DataFrame grande com mlflow.pyfunc.spark_udf() em vez de chamar toPandas() e prever no driver?",
     "alternativas": [
-      "A inferência roda distribuída nos executores, sem concentrar dados no driver.",
+      "A inferência roda distribuída nos executores, sem lotar o driver.",
       "O spark_udf aplica automaticamente as transformações do Feature Store.",
       "O spark_udf converte o modelo para Spark ML, acelerando a inferência.",
       "O spark_udf grava o resultado direto em Delta, dispensando o write."
@@ -4337,7 +4337,7 @@
     "secao": 2,
     "secao_nome": "Data Processing",
     "dificuldade": "media",
-    "pergunta": "Como remover outliers de uma coluna de um Spark DataFrame usando a regra do IQR?",
+    "pergunta": "Você precisa aplicar a regra do IQR para descartar outliers de uma coluna numérica em um Spark DataFrame. Qual caminho funciona?",
     "alternativas": [
       "Obter Q1 e Q3 com approxQuantile e filtrar fora de [Q1 - 1.5xIQR, Q3 + 1.5xIQR].",
       "Aplicar df.summary() e descartar as linhas listadas na saída como extremas.",
@@ -4356,8 +4356,8 @@
     "dificuldade": "media",
     "pergunta": "Um modelo de preço foi treinado com o target transformado por log. O que é preciso fazer antes de mostrar a previsão ao usuário final?",
     "alternativas": [
-      "Nada: a previsão já sai na unidade original do preço.",
-      "Exponenciar a previsão, revertendo a transformação aplicada no treino.",
+      "Nada: a previsão já sai na unidade original do preço em reais.",
+      "Exponenciar a previsão, revertendo a transformação do treino.",
       "Multiplicar a previsão pelo desvio padrão do target de treino.",
       "Aplicar log novamente, para cancelar a transformação anterior."
     ],
