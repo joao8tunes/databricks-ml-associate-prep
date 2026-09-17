@@ -239,7 +239,7 @@ if st.session_state.fase == "home":
         with col1:
             n_questoes = st.slider(
                 "Número de questões", min_value=5,
-                max_value=min(60, len(QUESTOES_TODAS)), value=20, step=5,
+                max_value=len(QUESTOES_TODAS), value=20, step=1,
             )
         with col2:
             dificuldades = st.multiselect(
