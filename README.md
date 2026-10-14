@@ -1,4 +1,4 @@
-<img width="3203" height="2268" alt="image" src="https://github.com/user-attachments/assets/3402ab95-1d74-474d-a928-ead0e1f2a756" /># Databricks Certified Machine Learning Associate — Guia de Estudos
+# Databricks Certified Machine Learning Associate — Guia de Estudos
 
 > Guia prático e incremental para passar na certificação **Databricks Certified Machine Learning Associate** partindo do zero.
 > Escrito para quem **não trabalha com Databricks no dia a dia** e precisa passar mesmo assim.
@@ -18,8 +18,6 @@
 - **Use como complemento, não como fonte única.** A fonte da verdade é sempre o [exam guide oficial](https://www.databricks.com/learn/certification/machine-learning-associate) e a [documentação da Databricks](https://docs.databricks.com). Este repositório serve para organizar o estudo, não para substituí-los.
 
 Encontrou um erro? [Abra uma issue](../../issues) — correções são bem-vindas e ajudam quem vier depois.
-
----
 
 ---
 
