@@ -1,4 +1,4 @@
-# Databricks Certified Machine Learning Associate — Guia de Estudos
+<img width="3203" height="2268" alt="image" src="https://github.com/user-attachments/assets/3402ab95-1d74-474d-a928-ead0e1f2a756" /># Databricks Certified Machine Learning Associate — Guia de Estudos
 
 > Guia prático e incremental para passar na certificação **Databricks Certified Machine Learning Associate** partindo do zero.
 > Escrito para quem **não trabalha com Databricks no dia a dia** e precisa passar mesmo assim.
@@ -18,6 +18,22 @@
 - **Use como complemento, não como fonte única.** A fonte da verdade é sempre o [exam guide oficial](https://www.databricks.com/learn/certification/machine-learning-associate) e a [documentação da Databricks](https://docs.databricks.com). Este repositório serve para organizar o estudo, não para substituí-los.
 
 Encontrou um erro? [Abra uma issue](../../issues) — correções são bem-vindas e ajudam quem vier depois.
+
+---
+
+---
+
+## ✅ Resultado prático
+
+Este material foi criado para organizar meus estudos para a certificação **Databricks Certified Machine Learning Associate**.
+
+Após concluir o conteúdo e utilizar os simulados deste repositório como principal ferramenta de revisão, fui aprovado na certificação com **77/100**.
+
+Minha preparação foi baseada principalmente na trilha acelerada ("speed run"), simulados frequentes e revisão das questões do modo estudo nos dias anteriores ao exame.
+
+> Experiência pessoal: fiz a prova em **Português (Brasil)**. Para mim, a maior dificuldade não foi o conteúdo técnico, mas sim a tradução dos enunciados. Encontrei questões com textos longos, formatação inconsistente e termos traduzidos de forma pouco natural, o que tornou a interpretação mais difícil em alguns momentos. Se você lê inglês técnico com conforto, vale considerar realizar o exame em inglês.
+
+Naturalmente, um único relato não garante resultados para outras pessoas, mas o conteúdo deste repositório se mostrou suficiente para que eu atingisse a pontuação necessária para aprovação.
 
 ---
 
